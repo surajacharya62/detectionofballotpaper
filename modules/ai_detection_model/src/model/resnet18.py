@@ -155,7 +155,7 @@ import torch.nn as nn
 
 device = "cuda" if torch.cuda.is_available() else "cpu"
 model = models.resnet18(pretrained=True)
-model = model.to(device)
+
 
 for params in model.parameters():
   params.requires_grad_ = False
@@ -163,7 +163,7 @@ for params in model.parameters():
 
 nr_filters = model.fc.in_features  #number of input features of last layer
 model.fc = nn.Linear(nr_filters, 1)
-
+model = model.to(device)
 
 from torch.nn.modules.loss import BCEWithLogitsLoss
 from torch.optim import lr_scheduler
