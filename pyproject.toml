@@ -1,0 +1,24 @@
+[tool.poetry]
+name = "detectionofballotpaper"
+version = "0.1.0"
+description = "dependencies"
+authors = ["y"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.11"
+fastapi = "^0.105.0"
+opencv-python = "^4.8.1.78"
+pillow = "^10.1.0"
+matplotlib = "^3.8.2"
+svgwrite = "^1.4.3"
+requests = "^2.31.0"
+flake8 = "^7.0.0"
+torchvision = "^0.16.2"
+pandas = "^2.2.0"
+openpyxl = "^3.1.2"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
