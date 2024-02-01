@@ -155,6 +155,7 @@ import torch.nn as nn
 
 device = "cuda" if torch.cuda.is_available() else "cpu"
 model = models.resnet18(pretrained=True)
+model = model.to(device)
 
 for params in model.parameters():
   params.requires_grad_ = False
@@ -183,7 +184,7 @@ epoch_train_losses = []
 epoch_test_losses = []
 
 
-n_epochs = 1
+n_epochs = 50
 early_stopping_tolerance = 3
 early_stopping_threshold = 0.03
 
@@ -192,7 +193,7 @@ for epoch in range(n_epochs):
   epoch_loss = 0 
 
   for i ,data in tqdm(enumerate(trainloader), total = len(trainloader)): #iterate ove batches
-    x_batch , y_batch = data 
+    x_batch , y_batch = data
     # print(x_batch,y_batch)
     x_batch = x_batch.to(device) #move to gpu
     y_batch = y_batch.unsqueeze(1).float() #convert target to same nn output shape
@@ -250,19 +251,19 @@ for epoch in range(n_epochs):
 model.load_state_dict(best_model_wts)
 
 
-# import matplotlib.pyplot as plt
-# print(epoch_train_losses)
-# print(epoch_test_losses)
-# epoch_train_losses_np = [loss.detach().numpy() for loss in epoch_train_losses]
-# epoch_test_losses_np = [loss.detach().numpy() for loss in epoch_test_losses]
+import matplotlib.pyplot as plt
+print(epoch_train_losses)
+print(epoch_test_losses)
+epoch_train_losses_np = [loss.detach().numpy() for loss in epoch_train_losses]
+epoch_test_losses_np = [loss.detach().numpy() for loss in epoch_test_losses]
 
-# plt.plot(epoch_train_losses, label="Training loss")
-# plt.plot(epoch_test_losses, label="Val loss")
-# plt.title('Training and Test Loss for Resnet18')
-# plt.xlabel('Epochs')
-# plt.ylabel('Loss')
-# plt.legend()
-# plt.show()
+plt.plot(epoch_train_losses_np, label="Training loss")
+plt.plot(epoch_test_losses_np, label="Val loss")
+plt.title('Training and Test Loss for Resnet18')
+plt.xlabel('Epochs')
+plt.ylabel('Loss')
+plt.legend()
+plt.show()
 
 
 
