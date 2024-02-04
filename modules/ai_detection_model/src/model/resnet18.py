@@ -254,11 +254,14 @@ model.load_state_dict(best_model_wts)
 import matplotlib.pyplot as plt
 print(epoch_train_losses)
 print(epoch_test_losses)
-epoch_train_losses_np = [loss.cpu().numpy() for loss in epoch_train_losses]
-epoch_test_losses_np = [loss.cpu().numpy() for loss in epoch_test_losses]
+epoch_train_losses_np = [loss.cpu() for loss in epoch_train_losses]
+epoch_test_losses_np = [loss.cpu() for loss in epoch_test_losses]
 
-plt.plot(epoch_train_losses_np, label="Training loss")
-plt.plot(epoch_test_losses_np, label="Val loss")
+epoch_train_losses_np1 = [loss.detach().numpy() for loss in epoch_train_losses]
+epoch_test_losses_np1 = [loss.detach().numpy() for loss in epoch_test_losses]
+
+plt.plot(epoch_train_losses_np1, label="Training loss")
+plt.plot(epoch_test_losses_np1, label="Val loss")
 plt.title('Training and Test Loss for Resnet18')
 plt.xlabel('Epochs')
 plt.ylabel('Loss')
