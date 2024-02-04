@@ -257,7 +257,7 @@ print(epoch_test_losses)
 epoch_train_losses_np = [loss.cpu() for loss in epoch_train_losses]
 epoch_test_losses_np = [loss.cpu() for loss in epoch_test_losses]
 
-epoch_train_losses_np1 = [loss.detch().numpy() for loss in epoch_train_losses_np]
+epoch_train_losses_np1 = [loss.detach().numpy() for loss in epoch_train_losses_np]
 epoch_test_losses_np1 = [loss.detach().numpy() for loss in epoch_test_losses_np]
 
 plt.plot(epoch_train_losses_np1, label="Training loss")
