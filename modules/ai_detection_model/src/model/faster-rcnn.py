@@ -241,9 +241,10 @@ for epoch in range(num_epochs):
     # Average loss for the epoch
     epoch_loss /= len(train_set)
     total_losses.append(epoch_loss)
-    
+
     print(f"Epoch: {epoch+1}/{num_epochs}, Loss: {epoch_loss:.3f}")
 
+model.eval()
 predictions = []
 for images in test_loader:  # No labels if your test set is unlabeled
     images = images.to(device)  # Move images to the device where your model is
