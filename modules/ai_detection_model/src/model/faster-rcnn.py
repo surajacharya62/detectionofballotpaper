@@ -125,7 +125,7 @@ test_path = 'test'
 
 dataset = ElectoralSymbolDataset(image_path, train_path, use_tranforms=True)
 
-train_set = torch.utils.data.DataLoader(dataset, batch_size=16,
+train_set = torch.utils.data.DataLoader(dataset, batch_size=4,
                                          shuffle= True, 
                                          pin_memory= True if torch.cuda.is_available() else False, collate_fn=collate_fn )
 
