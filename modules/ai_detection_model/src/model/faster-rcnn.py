@@ -12,7 +12,7 @@ import torchvision.transforms as T
 import torch
 import torchvision
 from torchvision.models.detection.faster_rcnn import FastRCNNPredictor
-
+from torch.utils.data import DataLoader
 import warnings
 warnings.filterwarnings('ignore')
 
@@ -93,6 +93,35 @@ class ElectoralSymbolDataset(Dataset):
         return len(self.imgs_list)
 
 
+class UnlabeledTestDataset(Dataset):
+    def __init__(self, image_dir, transform=None):
+        self.image_dir = image_dir
+        self.transform = transform
+        self.images = os.listdir(image_dir)
+
+    def __len__(self):
+        return len(self.images)
+
+    def __getitem__(self, idx):
+        image_path = os.path.join(self.image_dir, self.images[idx])
+        image = Image.open(image_path).convert("RGB")
+        if self.transform:
+            image = self.transform(image)
+        return image 
+    
+
+def transform_image(use_tranforms):
+    if use_tranforms:
+        transforms = T.Compose([
+                # T.Resize((224, 224)),  # Example resize, adjust as needed
+                T.ToTensor(),
+                T.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),  # Example normalization, adjust as needed
+            ])
+
+    else:
+        transforms = None
+    return transforms
+
 def collate_fn(batch):
     """
     Custom collate function for handling batches of images with different
@@ -120,18 +149,19 @@ def collate_fn(batch):
 
 image_path = '../../../datasets1/annotateddataset/'
 train_path = 'train/' 
-test_path = 'test'
+test_path = '../../../datasets/ballot_datasets/testing/valid'
 
 
 dataset = ElectoralSymbolDataset(image_path, train_path, use_tranforms=True)
 
-train_set = torch.utils.data.DataLoader(dataset, batch_size=4,
+train_set = DataLoader(dataset, batch_size=4,
                                          shuffle= True, 
                                          pin_memory= True if torch.cuda.is_available() else False, collate_fn=collate_fn )
 
 
-
-
+test_set = UnlabeledTestDataset(test_path, transform=transform_image(True))
+test_loader = DataLoader(test_set, batch_size=4, shuffle=False)
+# print(next(iter(test_loader)))
 
 #########-------------------------------------------------- For visualization
 
@@ -199,7 +229,7 @@ for epoch in range(num_epochs):
 
         optimizer.zero_grad()
 
-        loss_dict = model(images, targets)
+        loss_dict = model(images, targets) 
         losses = sum(loss for loss in loss_dict.values())
 
         # Backpropagation
@@ -211,26 +241,48 @@ for epoch in range(num_epochs):
     # Average loss for the epoch
     epoch_loss /= len(train_set)
     total_losses.append(epoch_loss)
-
+    
     print(f"Epoch: {epoch+1}/{num_epochs}, Loss: {epoch_loss:.3f}")
 
-    # for data in train_set:
-    #     imgs = []
-    #     targets = []
-    #     for d in data:
-    #         # print(d)
-    #         imgs.append(d[0].to(device))
-    #         targ = {}
-    #         targ['boxes'] = d[1]['boxes'].to(device)
-    #         targ['labels'] = d[1]['label'].to(device)
-    #         targets.append(targ)
-    #     loss_dict = model(imgs,targets)
-    #     loss = sum(v for v in loss_dict.values())
-    #     epochs_loss += loss.cpu().detach.numpy()
-    #     optimizer.zero_grad()
-    #     loss.backward()
-    # print(epochs_loss)
+predictions = []
+for images in test_loader:  # No labels if your test set is unlabeled
+    images = images.to(device)  # Move images to the device where your model is
+    with torch.no_grad():  # No gradients needed
+        output = model(images)
+        predictions.append(output)
 
+
+def visualize_prediction(image, prediction, threshold=0.5):
+    """
+    Visualize the prediction on the image.
+    
+    Parameters:
+    - image: the PIL image
+    - prediction: the prediction output from the model
+    - threshold: threshold for prediction score
+    """
+    # Convert image to numpy array
+    image = np.array(image)
+    fig, ax = plt.subplots(1)
+    ax.imshow(image)
+
+    # Prediction boxes, labels, and scores
+    boxes = prediction['boxes']
+    labels = prediction['labels']
+    scores = prediction['scores']
+
+    for box, score in zip(boxes, scores):
+        if score > threshold:
+            x1, y1, x2, y2 = box
+            rect = patches.Rectangle((x1, y1), x2-x1, y2-y1, linewidth=1, edgecolor='r', facecolor='none')
+            ax.add_patch(rect)
+
+    plt.show()
+
+
+# Example of visualizing the first image and its predictions
+image, pred = test_set[0], predictions[0]  # Assuming you have test_dataset
+visualize_prediction(image, pred)
 
 
 
