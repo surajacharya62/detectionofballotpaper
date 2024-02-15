@@ -255,6 +255,21 @@ for images in test_loader:  # No labels if your test set is unlabeled
         predictions.extend(output)  # Use extend to flatten the list if processing batch by batch
 
 
+def tensor_to_PIL(tensor, mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]):
+    # Clone the tensor, denormalize it, and move it to CPU
+    tensor = tensor.clone().detach().cpu()
+    tensor = tensor.squeeze()  # Remove batch dimension if present
+    tensor.mul_(torch.tensor(std).view(3, 1, 1)).add_(torch.tensor(mean).view(3, 1, 1))  # Denormalize
+    tensor = tensor.permute(1, 2, 0)  # Change from CxHxW to HxWxC
+    tensor = torch.clamp(tensor, 0, 1)  # Clamp values to the range [0, 1]
+    return to_pil_image(tensor)
+
+# Load your tensor here
+# image_tensor = ...
+
+# Convert tensor to PIL Image
+
+
 print(predictions[0])
 def visualize_prediction(image, prediction, threshold=0.5):
     """
@@ -289,7 +304,7 @@ def visualize_prediction(image, prediction, threshold=0.5):
 
 
 if len(predictions) > 0 and isinstance(predictions[0], dict):
-    image_tensor, pred = test_set[0][0], predictions[0]  # Assuming test_set[0] returns a tuple (image, target)
+    image_tensor, pred = tensor_to_PIL(test_set[0][0]), predictions[0]  # Assuming test_set[0] returns a tuple (image, target)
     visualize_prediction(image_tensor, pred, threshold=0.5)
 else:
     print("No predictions to visualize.")
