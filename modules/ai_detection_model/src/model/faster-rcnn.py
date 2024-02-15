@@ -163,7 +163,7 @@ train_set = DataLoader(dataset, batch_size=4,
 test_set = UnlabeledTestDataset(test_path, transform=transform_image(True))
 test_loader = DataLoader(test_set, batch_size=4, shuffle=False)
 # print(next(iter(test_loader)))
-# print(test_set[0])
+print(test_set[0][0])
 #########-------------------------------------------------- For visualization
 
 # def plot_img_bbox(img, target):
@@ -282,7 +282,9 @@ def visualize_prediction(image, prediction, threshold=0.5):
             rect = patches.Rectangle((x1, y1), x2-x1, y2-y1, linewidth=1, edgecolor='r', facecolor='none')
             ax.add_patch(rect)
 
-    plt.show()
+    plt.axis('off')  # Optional: Remove axes for cleaner visualization
+    plt.savefig('../../../output.png', bbox_inches='tight', pad_inches=0)
+    plt.close()  
 
 
 if len(predictions) > 0 and isinstance(predictions[0], dict):
