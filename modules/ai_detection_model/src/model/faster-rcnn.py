@@ -150,7 +150,7 @@ def collate_fn(batch):
 
 image_path = '../../../datasets1/annotateddataset/'
 train_path = 'train/' 
-test_path = '../../../datasets/ballot_datasets/testing/valid'
+test_path = '../../../datasets1/annotateddataset/train'
 
 
 dataset = ElectoralSymbolDataset(image_path, train_path, use_tranforms=True)
