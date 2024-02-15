@@ -278,7 +278,7 @@ def visualize_prediction(image, prediction, threshold=0.5):
 
     for box, score in zip(boxes, scores):
         if score > threshold:
-            x1, y1, x2, y2 = box
+            x1, y1, x2, y2 = box.numpy()
             rect = patches.Rectangle((x1, y1), x2-x1, y2-y1, linewidth=1, edgecolor='r', facecolor='none')
             ax.add_patch(rect)
 
