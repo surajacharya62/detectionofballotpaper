@@ -15,6 +15,7 @@ from torchvision.models.detection.faster_rcnn import FastRCNNPredictor
 from torch.utils.data import DataLoader
 import warnings
 warnings.filterwarnings('ignore')
+from torchvision.transforms.functional import to_pil_image
 
 
 # class ElectoralSymbolDataset(Dataset):
@@ -263,7 +264,8 @@ def visualize_prediction(image, prediction, threshold=0.5):
     - threshold: threshold for prediction score
     """
     # Convert image to numpy array
-    image = np.array(image)
+    image_to_cpu = image.cpu()
+    image = to_pil_image(image_to_cpu)
     fig, ax = plt.subplots(1)
     ax.imshow(image)
 
