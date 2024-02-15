@@ -163,7 +163,7 @@ train_set = DataLoader(dataset, batch_size=4,
 test_set = UnlabeledTestDataset(test_path, transform=transform_image(True))
 test_loader = DataLoader(test_set, batch_size=4, shuffle=False)
 # print(next(iter(test_loader)))
-
+# print(test_set[0])
 #########-------------------------------------------------- For visualization
 
 # def plot_img_bbox(img, target):
@@ -251,9 +251,11 @@ for images in test_loader:  # No labels if your test set is unlabeled
     images = images.to(device)  # Move images to the device where your model is
     with torch.no_grad():  # No gradients needed
         output = model(images)
-        predictions.append(output)
+        # predictions.append(output)
+        predictions.extend(output)  # Use extend to flatten the list if processing batch by batch
 
 
+print(predictions[0])
 def visualize_prediction(image, prediction, threshold=0.5):
     """
     Visualize the prediction on the image.
@@ -283,9 +285,12 @@ def visualize_prediction(image, prediction, threshold=0.5):
     plt.show()
 
 
-# Example of visualizing the first image and its predictions
-image, pred = test_set[0], predictions[0]  # Assuming you have test_dataset
-visualize_prediction(image, pred)
+if len(predictions) > 0 and isinstance(predictions[0], dict):
+    image_tensor, pred = test_set[0][0], predictions[0]  # Assuming test_set[0] returns a tuple (image, target)
+    visualize_prediction(image_tensor, pred, threshold=0.5)
+else:
+    print("No predictions to visualize.")
+
 
 
 
