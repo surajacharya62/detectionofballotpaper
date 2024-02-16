@@ -163,7 +163,7 @@ train_set = DataLoader(dataset, batch_size=4,
 test_set = UnlabeledTestDataset(test_path, transform=transform_image(True))
 test_loader = DataLoader(test_set, batch_size=4, shuffle=False)
 # print(next(iter(test_loader)))
-print(test_set[0][0])
+# print(test_set[500])/
 #########-------------------------------------------------- For visualization
 
 # def plot_img_bbox(img, target):
@@ -301,7 +301,7 @@ def visualize_prediction(img, prediction, threshold=0.5):
 
 
 if len(predictions) > 0 and isinstance(predictions[0], dict):
-    image_tensor, pred = test_set[0][0], predictions[0]  # Assuming test_set[0] returns a tuple (image, target)
+    image_tensor, pred = test_set[0], predictions[0]  # Assuming test_set[0] returns a tuple (image, target)
     visualize_prediction(image_tensor, pred, threshold=0.5)
 else:
     print("No predictions to visualize.")
