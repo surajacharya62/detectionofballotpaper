@@ -263,7 +263,7 @@ def inverse_normalize(tensor, mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.2
     return tensor
 
 
-def visualize_prediction(img, prediction, threshold=0.5):
+def visualize_prediction(test_mages, prediction, threshold=0.5):
     """
     Visualize the prediction on the image.
     
@@ -272,35 +272,42 @@ def visualize_prediction(img, prediction, threshold=0.5):
     - prediction: the prediction output from the model
     - threshold: threshold for prediction score
     """
-    img_tensor = inverse_normalize(img) 
+    i = 0
+    for img in test_mages:        
 
-     # Convert tensor image to numpy array
-    # img_np = img_tensor.permute(1, 2, 0).cpu().numpy()
-    img_np = img.permute(1, 2, 0).numpy() 
-    # img_np = np.clip(img_np, 0, 1)  # Ensure the image array is between 0 and 1
-    
-    fig, ax = plt.subplots(1)
-    ax.imshow(img_np)
+        # Convert tensor image to numpy array
+        # img_np = img_tensor.permute(1, 2, 0).cpu().numpy()
+        img_np = img.permute(1, 2, 0).numpy() 
+        # img_np = np.clip(img_np, 0, 1)  # Ensure the image array is between 0 and 1
+        
+        fig, ax = plt.subplots(1)
+        ax.imshow(img_np)
 
-    # Prediction boxes, labels, and scores
-    boxes = prediction['boxes']
-    labels = prediction['labels']
-    scores = prediction['scores'] 
+        # Prediction boxes, labels, and scores
+        boxes = prediction['boxes']
+        labels = prediction['labels']
+        scores = prediction['scores']  
 
-    for box, score in zip(boxes, scores):
-        if score > threshold:
-            box1 = box.cpu() 
-            x1, y1, x2, y2 = box1.numpy()
-            rect = patches.Rectangle((x1, y1), x2-x1, y2-y1, linewidth=1, edgecolor='r', facecolor='none')
-            ax.add_patch(rect)
+        for box, score, label in zip(boxes, scores, labels):
+            if score > threshold:
+                box1 = box.cpu() 
+                x1, y1, x2, y2 = box1.numpy()
+                rect = patches.Rectangle((x1, y1), x2-x1, y2-y1, linewidth=1, edgecolor='r', facecolor='none')                
+                ax.add_patch(rect)
 
-    plt.axis('off')  # Optional: Remove axes for cleaner visualization
-    plt.savefig('../../../output.png', bbox_inches='tight', pad_inches=0)
-    plt.close()  
+                # Add label text
+                label_text = f"{label}"  # Replace `label` with a mapping to the actual class name if you have one
+                ax.text(x1, y1, label_text, color='white', fontsize=12, 
+                        bbox=dict(facecolor='red', alpha=0.5, edgecolor='none'))
+
+        plt.axis('off')  # Optional: Remove axes for cleaner visualization
+        plt.savefig(f'../../../output_{i}.png', bbox_inches='tight', pad_inches=0)
+        plt.close()  
+        i += 1
 
 
-if len(predictions) > 0 and isinstance(predictions[0], dict):
-    image_tensor, pred = test_set[0], predictions[0]  # Assuming test_set[0] returns a tuple (image, target)
+if len(predictions) > 0 and isinstance(predictions, dict):
+    image_tensor, pred = test_set, predictions # Assuming test_set[0] returns a tuple (image, target)
     visualize_prediction(image_tensor, pred, threshold=0.5)
 else:
     print("No predictions to visualize.")
