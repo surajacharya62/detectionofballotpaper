@@ -301,7 +301,7 @@ def visualize_prediction(test_images, predictions, threshold=0.5):
                         bbox=dict(facecolor='red', alpha=0.5, edgecolor='none'))
 
         plt.axis('off')  # Optional: Remove axes for cleaner visualization
-        plt.savefig(f'../../../output/output_image_{i}.png', bbox_inches='tight', pad_inches=0)
+        plt.savefig(f'../../../outputdir/output_image_{i}.png', bbox_inches='tight', pad_inches=0)
         plt.close()  
       
 
