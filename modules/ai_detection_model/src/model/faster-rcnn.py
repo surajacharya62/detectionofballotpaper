@@ -257,7 +257,14 @@ for images in test_loader:  # No labels if your test set is unlabeled
 
 
 
-print(predictions[0])
+def inverse_normalize(tensor, mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]):
+    """Apply inverse normalization to a tensor."""
+    mean = torch.tensor(mean, dtype=tensor.dtype, device=tensor.device)
+    std = torch.tensor(std, dtype=tensor.dtype, device=tensor.device)
+    tensor.mul_(std[:, None, None]).add_(mean[:, None, None])
+    return tensor
+
+
 def visualize_prediction(img, prediction, threshold=0.5):
     """
     Visualize the prediction on the image.
@@ -267,21 +274,23 @@ def visualize_prediction(img, prediction, threshold=0.5):
     - prediction: the prediction output from the model
     - threshold: threshold for prediction score
     """
-    # Convert image to numpy array
-    # image_to_cpu = image.cpu()
-    # image = to_pil_image(image_to_cpu)
-    image = img.permute(1, 2, 0).numpy() 
+    img_tensor = inverse_normalize(img) 
+
+     # Convert tensor image to numpy array
+    img_np = img_tensor.permute(1, 2, 0).cpu().numpy()
+    img_np = np.clip(img_np, 0, 1)  # Ensure the image array is between 0 and 1
+    
     fig, ax = plt.subplots(1)
-    ax.imshow(image)
+    ax.imshow(img_np)
 
     # Prediction boxes, labels, and scores
     boxes = prediction['boxes']
     labels = prediction['labels']
-    scores = prediction['scores']
+    scores = prediction['scores'] 
 
     for box, score in zip(boxes, scores):
         if score > threshold:
-            box1 = box.cpu()
+            box1 = box.cpu() 
             x1, y1, x2, y2 = box1.numpy()
             rect = patches.Rectangle((x1, y1), x2-x1, y2-y1, linewidth=1, edgecolor='r', facecolor='none')
             ax.add_patch(rect)
