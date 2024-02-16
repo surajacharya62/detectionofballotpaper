@@ -93,6 +93,7 @@ class ElectoralSymbolDataset(Dataset):
     def __len__(self):
         return len(self.imgs_list)
 
+df = pd.read_csv(os.path.join('../../../datasets1/annotateddataset/', 'annotations1.csv'))
 label_to_id = {label: i for i, label in enumerate(df['label'].unique())}
 print(label_to_id)
 class UnlabeledTestDataset(Dataset):
