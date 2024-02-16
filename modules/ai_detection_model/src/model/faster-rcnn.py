@@ -93,7 +93,8 @@ class ElectoralSymbolDataset(Dataset):
     def __len__(self):
         return len(self.imgs_list)
 
-
+label_to_id = {label: i for i, label in enumerate(df['label'].unique())}
+print(label_to_id)
 class UnlabeledTestDataset(Dataset):
     def __init__(self, image_dir, transform=None):
         self.image_dir = image_dir
@@ -213,7 +214,7 @@ num_classes = 57
 model = get_object_detection_model(num_classes)
 
 optimizer = torch.optim.SGD(model.parameters(),lr=0.001, momentum=0.9, weight_decay=0.0005)
-num_epochs = 10
+num_epochs = 25
 
 device = torch.device('cuda') if torch.cuda.is_available() else torch.device('cpu')
 
@@ -297,8 +298,7 @@ def visualize_prediction(test_images, predictions, threshold=0.5):
 
                 # Add label text
                 label_text = f"{label}"  # Replace `label` with a mapping to the actual class name if you have one
-                ax.text(x1, y1, label_text, color='white', fontsize=12, 
-                        bbox=dict(facecolor='red', alpha=0.5, edgecolor='none'))
+                ax.text(x1, y1, label_text, color='white', fontsize=12)
 
         plt.axis('off')  # Optional: Remove axes for cleaner visualization
         plt.savefig(f'../../../outputdir/output_image_{i}.png', bbox_inches='tight', pad_inches=0)
