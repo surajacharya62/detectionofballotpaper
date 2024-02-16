@@ -263,7 +263,7 @@ def inverse_normalize(tensor, mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.2
     return tensor
 
 
-def visualize_prediction(test_mages, prediction, threshold=0.5):
+def visualize_prediction(test_images, predictions, threshold=0.5):
     """
     Visualize the prediction on the image.
     
@@ -272,8 +272,8 @@ def visualize_prediction(test_mages, prediction, threshold=0.5):
     - prediction: the prediction output from the model
     - threshold: threshold for prediction score
     """
-    i = 0
-    for img in test_mages:        
+    
+    for i, (img, prediction) in enumerate(zip(test_images, predictions)):      
 
         # Convert tensor image to numpy array
         # img_np = img_tensor.permute(1, 2, 0).cpu().numpy()
@@ -286,7 +286,7 @@ def visualize_prediction(test_mages, prediction, threshold=0.5):
         # Prediction boxes, labels, and scores
         boxes = prediction['boxes']
         labels = prediction['labels']
-        scores = prediction['scores']  
+        scores = prediction['scores']
 
         for box, score, label in zip(boxes, scores, labels):
             if score > threshold:
@@ -301,9 +301,9 @@ def visualize_prediction(test_mages, prediction, threshold=0.5):
                         bbox=dict(facecolor='red', alpha=0.5, edgecolor='none'))
 
         plt.axis('off')  # Optional: Remove axes for cleaner visualization
-        plt.savefig(f'../../../output_{i}.png', bbox_inches='tight', pad_inches=0)
+        plt.savefig(f'../../../output/output_image_{i}.png', bbox_inches='tight', pad_inches=0)
         plt.close()  
-        i += 1
+      
 
 
 if len(predictions) > 0:
