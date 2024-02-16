@@ -213,7 +213,7 @@ num_classes = 57
 model = get_object_detection_model(num_classes)
 
 optimizer = torch.optim.SGD(model.parameters(),lr=0.001, momentum=0.9, weight_decay=0.0005)
-num_epochs = 5
+num_epochs = 2
 
 device = torch.device('cuda') if torch.cuda.is_available() else torch.device('cpu')
 
