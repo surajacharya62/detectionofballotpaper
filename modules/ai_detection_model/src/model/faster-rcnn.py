@@ -306,7 +306,7 @@ def visualize_prediction(test_mages, prediction, threshold=0.5):
         i += 1
 
 
-if len(predictions) > 0 and isinstance(predictions, dict):
+if len(predictions) > 0:
     image_tensor, pred = test_set, predictions # Assuming test_set[0] returns a tuple (image, target)
     visualize_prediction(image_tensor, pred, threshold=0.5)
 else:
