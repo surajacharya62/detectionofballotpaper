@@ -150,7 +150,7 @@ def collate_fn(batch):
 
 image_path = '../../../datasets1/annotateddataset/'
 train_path = 'train/' 
-test_path = '../../../datasets1/annotateddataset/train'
+test_path = '../../../datasets/ballot_datasets/testing/valid'
 
 
 dataset = ElectoralSymbolDataset(image_path, train_path, use_tranforms=True)
@@ -255,8 +255,6 @@ for images in test_loader:  # No labels if your test set is unlabeled
         predictions.extend(output)  # Use extend to flatten the list if processing batch by batch
 
 
-
-
 def inverse_normalize(tensor, mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]):
     """Apply inverse normalization to a tensor."""
     mean = torch.tensor(mean, dtype=tensor.dtype, device=tensor.device)
@@ -277,8 +275,9 @@ def visualize_prediction(img, prediction, threshold=0.5):
     img_tensor = inverse_normalize(img) 
 
      # Convert tensor image to numpy array
-    img_np = img_tensor.permute(1, 2, 0).cpu().numpy()
-    img_np = np.clip(img_np, 0, 1)  # Ensure the image array is between 0 and 1
+    # img_np = img_tensor.permute(1, 2, 0).cpu().numpy()
+    img_np = img.permute(1, 2, 0).numpy() 
+    # img_np = np.clip(img_np, 0, 1)  # Ensure the image array is between 0 and 1
     
     fig, ax = plt.subplots(1)
     ax.imshow(img_np)
