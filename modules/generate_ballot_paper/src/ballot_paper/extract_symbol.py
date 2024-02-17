@@ -166,12 +166,12 @@ class ImageCrop():
                 for c in range(0, 3):
                     white_background[:, :, c] = white_background[:, :, c] * (1 - mask / 255.0) + cropped_image[:, :, c] * (mask / 255.0)
 
-                resized_image = cv2.resize(white_background, (image_height, image_width), interpolation=cv2.INTER_LINEAR)
+                # resized_image = cv2.resize(white_background, (image_height, image_width), interpolation=cv2.INTER_LINEAR)
                 # rgb_color = cv2.cvtColor(resized_image, cv2.COLOR_RGB2BGR)
 
                 # Save the cropped image
                 # cropped.append(resized_image)
-                rgb_color = cv2.cvtColor(resized_image, cv2.COLOR_RGB2BGR)
+                rgb_color = cv2.cvtColor(white_background, cv2.COLOR_RGB2BGR)
                
                 cv2.imwrite(f'../result/congress{i}.png', rgb_color)
                                

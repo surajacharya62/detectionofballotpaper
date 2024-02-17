@@ -109,7 +109,7 @@ def generate_dataset(num_images, symbols, output_dir,image_size=(700, 700), max_
                 attempts = 0
                 placed = False
                 while not placed and attempts < 50:  # Try to place the symbol, avoiding excessive overlap
-                    symbol_img_resized = symbol_img.resize((random.randint(70, 200), random.randint(70, 200)), Image.LANCZOS)
+                    symbol_img_resized = symbol_img.resize((random.randint(189, 250), random.randint(189, 250)), Image.LANCZOS)
                     x1, y1 = random.randint(0, image_size[0] - symbol_img_resized.width), random.randint(0, image_size[1] - symbol_img_resized.height)
                     new_box = (x1, y1, x1 + symbol_img_resized.width, y1 + symbol_img_resized.height)
 
@@ -136,7 +136,7 @@ def generate_dataset(num_images, symbols, output_dir,image_size=(700, 700), max_
 # Example usage
 folder_path = '../../../datasets1/' 
 # stamp_path = '../../../datasets/stamp/train'
-output_dir = '../../../datasets1/annotatedataset' 
+output_dir = '../../../datasets1/annotateddataset/' 
 
 
 # Load symbols
@@ -146,6 +146,6 @@ print(len(symbols))
 # print(symbols)
 
 # Generate dataset
-num_images = 500
+num_images = 3000
 
 generate_dataset(num_images, symbols, output_dir)

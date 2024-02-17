@@ -299,7 +299,7 @@ def visualize_prediction(test_images, predictions, threshold=0.5):
 
                 # Add label text
                 label_text = f"{label}"  # Replace `label` with a mapping to the actual class name if you have one
-                ax.text(x1, y1, label_text, color='white', fontsize=12)
+                ax.text(x1, y1, label_text, color='blue', fontsize=12)
 
         plt.axis('off')  # Optional: Remove axes for cleaner visualization
         plt.savefig(f'../../../outputdir/output_image_{i}.png', bbox_inches='tight', pad_inches=0)
@@ -311,7 +311,7 @@ if len(predictions) > 0:
     image_tensor, pred = test_set, predictions # Assuming test_set[0] returns a tuple (image, target)
     visualize_prediction(image_tensor, pred, threshold=0.5)
 else:
-    print("No predictions to visualize.") #
+    print("No predictions to visualize.") # 
 
 
 
