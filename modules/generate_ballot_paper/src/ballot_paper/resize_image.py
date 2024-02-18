@@ -128,8 +128,8 @@ class ImageResize():
     
 
     def resize_image(self, image_files):
-        image_height = 512
-        image_width = 512
+        image_height = 150
+        image_width = 150
         i = 0
 
         for image in image_files:
@@ -141,7 +141,7 @@ class ImageResize():
            
             # rgb_color = cv2.cvtColor(resized_image, cv2.COLOR_RGB2BGR)
             
-            cv2.imwrite(f'../result/valid_{i:04}.png', resized_image)
+            cv2.imwrite(f'../result/stamp_{i:04}.png', resized_image)
                             
             i += 1
 
