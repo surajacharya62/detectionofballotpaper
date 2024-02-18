@@ -210,7 +210,7 @@ def get_object_detection_model(num_classes):
 
 
 
-num_classes = 68
+num_classes = 67
 
 # get the model using our helper function
 model = get_object_detection_model(num_classes)
