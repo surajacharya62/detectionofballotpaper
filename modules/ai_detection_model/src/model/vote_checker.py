@@ -70,6 +70,7 @@ class CheckVote():
                 if score > 0.5:
                     box1 = box.cpu() 
                     print('box1')
+                    print(label)
                     if label == 24:
                         print('label-24')
                         if self.is_stamp_valid(box1.numpy(), grid_cells):
