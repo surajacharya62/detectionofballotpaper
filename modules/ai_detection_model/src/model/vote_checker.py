@@ -45,50 +45,50 @@ class CheckVote():
                 return True  # Stamp is valid
         return False  # Stamp is not valid
     
-    def predicted_images(self, predicted_images, predicted_bounding_box):   
-        margins = (1560, 300, 200, 200)  # top, bottom, left, right margins
-        ballot_size = (2668, 3791)  # width, height of the ballot paper
-        symbol_size = (189, 189)  # width, height of the symbols
-        rows = 9  # Number of symbol rows
-        columns = 6  # Number of symbol columns  
-        grid_cells = self.reconstruct_grid_cells(margins, ballot_size, symbol_size, rows, columns)       
-        for i, (img, prediction) in enumerate(zip(predicted_images, predicted_bounding_box)):   
-            # Convert tensor image to numpy array
-            # img_np = img_tensor.permute(1, 2, 0).cpu().numpy()
-            img_np = img.permute(1, 2, 0).numpy() 
-            # img_np = np.clip(img_np, 0, 1)  #Ensure the image array is between 0 and 1
+    # def predicted_images(self, predicted_images, predicted_bounding_box):   
+    #     margins = (1560, 300, 200, 200)  # top, bottom, left, right margins
+    #     ballot_size = (2668, 3791)  # width, height of the ballot paper
+    #     symbol_size = (189, 189)  # width, height of the symbols
+    #     rows = 9  # Number of symbol rows
+    #     columns = 6  # Number of symbol columns  
+    #     grid_cells = self.reconstruct_grid_cells(margins, ballot_size, symbol_size, rows, columns)       
+    #     for i, (img, prediction) in enumerate(zip(predicted_images, predicted_bounding_box)):   
+    #         # Convert tensor image to numpy array
+    #         # img_np = img_tensor.permute(1, 2, 0).cpu().numpy()
+    #         img_np = img.permute(1, 2, 0).numpy() 
+    #         # img_np = np.clip(img_np, 0, 1)  #Ensure the image array is between 0 and 1
             
-            fig, ax = plt.subplots(1)
-            ax.imshow(img_np)
+    #         fig, ax = plt.subplots(1)
+    #         ax.imshow(img_np)
 
-            # Prediction boxes, labels, and scores
-            boxes = prediction['boxes']
-            labels = prediction['labels']
-            scores = prediction['scores']
+    #         # Prediction boxes, labels, and scores
+    #         boxes = prediction['boxes']
+    #         labels = prediction['labels']
+    #         scores = prediction['scores']
 
-            for box, score, label in zip(boxes, scores, labels):
-                if score > 0.5:
-                    box1 = box.cpu() 
-                    print('box1')
-                    print(label)
-                    label_text = f"{label}"
-                    print(label_text)
-                    if int(label_text) == 24:
-                        print('label-24')
-                        if self.is_stamp_valid(box1.numpy(), grid_cells):
-                            print("valid_stamp")
-                            x1, y1, x2, y2 = box1.numpy()
+    #         for box, score, label in zip(boxes, scores, labels):
+    #             if score > 0.5:
+    #                 box1 = box.cpu() 
+    #                 # print('box1')
+    #                 # print(label)
+    #                 label_text = f"{label}"
+    #                 # print(label_text)
+    #                 if int(label_text) == 24:
+    #                     print('label-24')
+    #                     if self.is_stamp_valid(box1.numpy(), grid_cells):
+    #                         print("valid_stamp")
+    #                         x1, y1, x2, y2 = box1.numpy()
 
-                            rect = patches.Rectangle((x1, y1), x2-x1, y2-y1, linewidth=1, edgecolor='r', facecolor='none')                
-                            ax.add_patch(rect)
+    #                         rect = patches.Rectangle((x1, y1), x2-x1, y2-y1, linewidth=1, edgecolor='r', facecolor='none')                
+    #                         ax.add_patch(rect)
 
-                            # Add label text
-                            label_text = f"{label}"  # Replace `label` with a mapping to the actual class name if you have one
-                            ax.text(x1, y1, label_text, color='blue', fontsize=12)
+    #                         # Add label text
+    #                         label_text = f"{label}"  # Replace `label` with a mapping to the actual class name if you have one
+    #                         ax.text(x1, y1, label_text, color='blue', fontsize=12)
 
-                            plt.axis('off')  # Optional: Remove axes for cleaner visualization
-                            plt.savefig(f'../../../outputdir/valid_stamp_{i}.png', bbox_inches='tight', pad_inches=0)
-                            plt.close()  
+    #                         plt.axis('off')  # Optional: Remove axes for cleaner visualization
+    #                         plt.savefig(f'../../../outputdir/valid_stamp_{i}.png', bbox_inches='tight', pad_inches=0)
+    #                         plt.close()  
 
 # Define your ballot and grid parameters (use the same values as in the creation script)
 
