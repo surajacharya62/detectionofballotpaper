@@ -70,7 +70,7 @@ class CheckVote():
                 if score > 0.5:
                     box1 = box.cpu() 
                     if label == 24:
-                        if self.is_stamp_valid(box1.numpy, grid_cells):
+                        if self.is_stamp_valid(box1.numpy(), grid_cells):
                             x1, y1, x2, y2 = box1.numpy()
 
                             rect = patches.Rectangle((x1, y1), x2-x1, y2-y1, linewidth=1, edgecolor='r', facecolor='none')                
