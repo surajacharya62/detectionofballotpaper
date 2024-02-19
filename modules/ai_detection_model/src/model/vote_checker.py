@@ -71,7 +71,9 @@ class CheckVote():
                     box1 = box.cpu() 
                     print('box1')
                     print(label)
-                    if label == 24:
+                    label_text = f"{label}"
+                    print(label_text)
+                    if int(label_text) == 24:
                         print('label-24')
                         if self.is_stamp_valid(box1.numpy(), grid_cells):
                             print("valid_stamp")

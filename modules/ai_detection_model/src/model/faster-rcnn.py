@@ -269,53 +269,53 @@ def inverse_normalize(tensor, mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.2
     return tensor
 
 
-def visualize_prediction(test_images, predictions, threshold=0.5):
-    """
-    Visualize the prediction on the image.
+# def visualize_prediction(test_images, predictions, threshold=0.5):
+#     """
+#     Visualize the prediction on the image.
     
-    Parameters:
-    - image: the PIL image
-    - prediction: the prediction output from the model
-    - threshold: threshold for prediction score
-    """
+#     Parameters:
+#     - image: the PIL image
+#     - prediction: the prediction output from the model
+#     - threshold: threshold for prediction score
+#     """
     
-    for i, (img, prediction) in enumerate(zip(test_images, predictions)):      
+#     for i, (img, prediction) in enumerate(zip(test_images, predictions)):      
 
-        # Convert tensor image to numpy array
-        # img_np = img_tensor.permute(1, 2, 0).cpu().numpy()
-        img_np = img.permute(1, 2, 0).numpy() 
-        # img_np = np.clip(img_np, 0, 1)  #Ensure the image array is between 0 and 1
+#         # Convert tensor image to numpy array
+#         # img_np = img_tensor.permute(1, 2, 0).cpu().numpy()
+#         img_np = img.permute(1, 2, 0).numpy() 
+#         # img_np = np.clip(img_np, 0, 1)  #Ensure the image array is between 0 and 1
         
-        fig, ax = plt.subplots(1)
-        ax.imshow(img_np)
+#         fig, ax = plt.subplots(1)
+#         ax.imshow(img_np)
 
-        # Prediction boxes, labels, and scores
-        boxes = prediction['boxes']
-        labels = prediction['labels']
-        scores = prediction['scores']
+#         # Prediction boxes, labels, and scores
+#         boxes = prediction['boxes']
+#         labels = prediction['labels']
+#         scores = prediction['scores']
 
-        for box, score, label in zip(boxes, scores, labels):
-            if score > threshold:
-                box1 = box.cpu() 
-                x1, y1, x2, y2 = box1.numpy()
-                rect = patches.Rectangle((x1, y1), x2-x1, y2-y1, linewidth=1, edgecolor='r', facecolor='none')                
-                ax.add_patch(rect)
+#         for box, score, label in zip(boxes, scores, labels):
+#             if score > threshold:
+#                 box1 = box.cpu() 
+#                 x1, y1, x2, y2 = box1.numpy()
+#                 rect = patches.Rectangle((x1, y1), x2-x1, y2-y1, linewidth=1, edgecolor='r', facecolor='none')                
+#                 ax.add_patch(rect)
 
-                # Add label text
-                label_text = f"{label}"  # Replace `label` with a mapping to the actual class name if you have one
-                ax.text(x1, y1, label_text, color='blue', fontsize=12)
+#                 # Add label text
+#                 label_text = f"{label}"  # Replace `label` with a mapping to the actual class name if you have one
+#                 ax.text(x1, y1, label_text, color='blue', fontsize=12)
 
-        plt.axis('off')  # Optional: Remove axes for cleaner visualization
-        plt.savefig(f'../../../outputdir/output_image_{i}.png', bbox_inches='tight', pad_inches=0)
-        plt.close()  
+#         plt.axis('off')  # Optional: Remove axes for cleaner visualization
+#         plt.savefig(f'../../../outputdir/output_image_{i}.png', bbox_inches='tight', pad_inches=0)
+#         plt.close()  
       
 
 
-if len(predictions) > 0:
-    image_tensor, pred = test_set, predictions # Assuming test_set[0] returns a tuple (image, target)
-    visualize_prediction(image_tensor, pred, threshold=0.5)
-else:
-    print("No predictions to visualize.") # 
+# if len(predictions) > 0:
+#     image_tensor, pred = test_set, predictions # Assuming test_set[0] returns a tuple (image, target)
+#     visualize_prediction(image_tensor, pred, threshold=0.5)
+# else:
+#     print("No predictions to visualize.") # 
 
 
 
