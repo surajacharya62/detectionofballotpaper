@@ -154,7 +154,7 @@ def draw_grid(draw, start_y, rows, columns, ml, mr, cell_height, cell_width, adj
     last_row_symbols = candidates % columns if candidates % columns != 0 else columns
     adjusted_cell_height = cell_height
     actual_rows = math.ceil(candidates / columns)  # Actual number of rows needed   
-
+    print(start_y)
     for row in range(actual_rows ):  # +1 to draw the line below the last row
         y = start_y + row * adjusted_cell_height        
         x_end = ml + columns * cell_width           
@@ -364,7 +364,7 @@ with open('../../../ballot_datasets/valid/annotations.csv', 'w', newline='') as 
     writer = csv.writer(file) 
     writer.writerow(header)  # Write the header
 
-    for i in range(1, 500): 
+    for i in range(1, 2): 
         valid_ballot, invalid_ballot, annotations = create_stamped_ballots(symbols, stamp_path,
                                                             9,6 , 53, symbol_size,
                                                             top_text, header_text, signature_text, 
@@ -372,7 +372,7 @@ with open('../../../ballot_datasets/valid/annotations.csv', 'w', newline='') as 
                                                                 margins=(300, 300, 200, 200))
 
         
-        valid_ballot.save(f'../../../ballot_datasets/valid/valid_{i:04}.jpg')
+        valid_ballot.save(f'../../../ballot_datasets/valid/position_{i:04}.jpg')
         # invalid_ballot.save(f'../../../datasets/ballot_datasets/invalid/invalid_{i:04}.jpg')
 
         for symbol_name, *bbox in annotations:

@@ -18,6 +18,10 @@ warnings.filterwarnings('ignore')
 from torchvision.transforms.functional import to_pil_image
 
 
+from  vote_checker import CheckVote
+
+check_vote_obj = CheckVote()
+
 # class ElectoralSymbolDataset(Dataset):
 #     def __init__(self, image_path, train_or_test_path, transforms): 
 #         self.image_path = image_path 
@@ -169,30 +173,30 @@ test_loader = DataLoader(test_set, batch_size=4, shuffle=False)
 # print(test_set[500])/
 #########-------------------------------------------------- For visualization
 
-def plot_img_bbox(img, target):
-    # plot the image and bboxes
-    # Bounding boxes are defined as follows: x-min y-min width height
-    img = img.permute(1, 2, 0).numpy() 
-    fig, a = plt.subplots(1,1)
-    fig.set_size_inches(5,5)
-    a.imshow(img)
-    for box in (target['boxes']):
+# def plot_img_bbox(img, target):
+#     # plot the image and bboxes
+#     # Bounding boxes are defined as follows: x-min y-min width height
+#     img = img.permute(1, 2, 0).numpy() 
+#     fig, a = plt.subplots(1,1)
+#     fig.set_size_inches(5,5)
+#     a.imshow(img)
+#     for box in (target['boxes']):
 
-        x, y, width, height  = box[0], box[1], box[2]-box[0], box[3]-box[1]
-        rect = patches.Rectangle((x, y),
-                                 width, height,
-                                 linewidth = 2,
-                                 edgecolor = 'r',
-                                 facecolor = 'none')
+#         x, y, width, height  = box[0], box[1], box[2]-box[0], box[3]-box[1]
+#         rect = patches.Rectangle((x, y),
+#                                  width, height,
+#                                  linewidth = 2,
+#                                  edgecolor = 'r',
+#                                  facecolor = 'none')
 
-        # Draw the bounding box on top of the image
-        a.add_patch(rect)
-    plt.show()
+#         # Draw the bounding box on top of the image
+#         a.add_patch(rect)
+#     plt.show()
     
-# plotting the image with bboxes. Feel free to change the index
+# # plotting the image with bboxes. Feel free to change the index
 
-img, target = dataset[220]
-plot_img_bbox(img, target)
+# img, target = dataset[220]
+# plot_img_bbox(img, target)
 
 
 ######---------------------------------------------- Model preparation
@@ -216,7 +220,7 @@ num_classes = 67
 model = get_object_detection_model(num_classes)
 
 optimizer = torch.optim.SGD(model.parameters(),lr=0.001, momentum=0.9, weight_decay=0.0005)
-num_epochs = 6
+num_epochs = 3
 
 device = torch.device('cuda') if torch.cuda.is_available() else torch.device('cpu')
 
@@ -248,6 +252,7 @@ for epoch in range(num_epochs):
 
     print(f"Epoch: {epoch+1}/{num_epochs}, Loss: {epoch_loss:.3f}")
 
+##--------------------------------------------Testing the model
 model.eval()
 predictions = []
 for images in test_loader:  # No labels if your test set is unlabeled
@@ -281,7 +286,7 @@ def visualize_prediction(test_images, predictions, threshold=0.5):
         # Convert tensor image to numpy array
         # img_np = img_tensor.permute(1, 2, 0).cpu().numpy()
         img_np = img.permute(1, 2, 0).numpy() 
-        # img_np = np.clip(img_np, 0, 1)  # Ensure the image array is between 0 and 1
+        # img_np = np.clip(img_np, 0, 1)  #Ensure the image array is between 0 and 1
         
         fig, ax = plt.subplots(1)
         ax.imshow(img_np)
@@ -314,75 +319,52 @@ if len(predictions) > 0:
 else:
     print("No predictions to visualize.") # 
 
-# import torchvision.transforms.functional as F
-# def visualize_prediction(test_images, predictions, original_image_dims, threshold=0.5):
-#     """
-#     Visualize the prediction on the image and save the result in the original image size.
+
+
+check_vote_obj.predicted_images(test_set, predictions)
     
-#     Parameters:
-#     - test_images: a batch of PIL images or tensors
-#     - predictions: the prediction output from the model
-#     - original_image_dims: list of tuples with the original dimensions (width, height) of the images
-#     - threshold: threshold for prediction score
+
+
+
+
+# def check_stamp_validity(stamp_box, grid_cells):
 #     """
-    
-#     for i, (img, prediction) in enumerate(zip(test_images, predictions)):
-#         original_width, original_height = original_image_dims[i]
-#         # If the image is a tensor, convert it to PIL for visualization
-#         if isinstance(img, torch.Tensor):
-#             # Undo normalization and convert to PIL
-#             img = F.to_pil_image(img.cpu())
-        
-#         # Resize image to original dimensions for visualization
-#         img = img.resize((original_width, original_height))
+#     Check if the stamp is entirely within any grid cell and return the valid cell or None.
+#     """
+#     for cell_box in grid_cells:
+#         if (stamp_box[0] >= cell_box[0] and stamp_box[1] >= cell_box[1] and
+#                 stamp_box[2] <= cell_box[2] and stamp_box[3] <= cell_box[3]):
+#             return cell_box  # Stamp is valid in this cell
+#     return None
 
-#         # Convert PIL image to numpy for plotting
-#         img_np = np.array(img)
+# def get_voted_symbol(stamp_valid_cell, symbol_boxes):
+#     """
+#     Determine which symbol the stamp was placed on based on cell overlap.
+#     """
+#     for symbol_box in symbol_boxes:
+#         # Check if the symbol is within the valid cell, this can be adjusted based on requirements
+#         if (symbol_box[0] >= stamp_valid_cell[0] and symbol_box[1] >= stamp_valid_cell[1] and
+#                 symbol_box[2] <= stamp_valid_cell[2] and symbol_box[3] <= stamp_valid_cell[3]):
+#             return symbol_box  # This is the voted symbol
+#     return None
 
-#         # Create figure and axis
-#         fig, ax = plt.subplots(1)
-#         ax.imshow(img_np)
+# # Assuming detected stamps, defined grid cells, and symbols are in these lists
+# detected_stamps = [...]  # List of detected stamps as bounding boxes
+# grid_cells = [...]  # List of grid cells as bounding boxes
+# symbol_boxes = [...]  # List of symbols as bounding boxes with associated party names
 
-#         # Get current dimensions of the image
-#         current_width, current_height = img.size
+# # Process each detected stamp to check its validity and determine the voted symbol
+# for stamp_box in detected_stamps:
+#     valid_cell = check_stamp_validity(stamp_box, grid_cells)
+#     if valid_cell:
+#         voted_symbol = get_voted_symbol(valid_cell, symbol_boxes)
+#         if voted_symbol:
+#             print("Vote is valid for symbol:", voted_symbol)
+#         else:
+#             print("Stamp is in a valid position, but no symbol matched. Check for errors.")
+#     else:
+#         print("Vote is invalid due to stamp placement.")
 
-#         # Prediction boxes, labels, and scores
-#         boxes = prediction['boxes']
-#         labels = prediction['labels']
-#         scores = prediction['scores']
-
-#         for box, score, label in zip(boxes, scores, labels):
-#             if score > threshold:
-#                 # Rescale box to original image dimensions
-#                 box = box.cpu().numpy()
-#                 scale_x = original_width / current_width
-#                 scale_y = original_height / current_height
-#                 box = [box[0] * scale_x, box[1] * scale_y, box[2] * scale_x, box[3] * scale_y]
-
-#                 # Draw rectangles on the original image
-#                 x1, y1, x2, y2 = box
-#                 rect = patches.Rectangle((x1, y1), x2 - x1, y2 - y1, linewidth=1, edgecolor='r', facecolor='none')
-#                 ax.add_patch(rect)
-
-#                 # Add label text
-#                 label_text = f"{label}"  # Replace `label` with a mapping to the actual class name if you have one
-#                 ax.text(x1, y1, label_text, color='blue', fontsize=12)
-
-#         # Remove axes for cleaner visualization
-#         plt.axis('off')
-#         # Save the image with predicted boxes in original size
-#         plt.savefig(f'../../../outputdir/output_image_{i}.png', bbox_inches='tight', pad_inches=0)
-#         plt.close()
-
-
-# # Assuming you have a list of original image dimensions corresponding to each image in test_images
-# original_image_dims = [(2668, 3791)] * len(test_set)  # Replace with actual dimensions
-
-# if len(predictions) > 0:
-#     # Assuming test_set is a list of image tensors
-#     visualize_prediction(test_set, predictions, original_image_dims, threshold=0.5)
-# else:
-#     print("No predictions to visualize.")
 
 
 
