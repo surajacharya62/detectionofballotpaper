@@ -69,8 +69,11 @@ class CheckVote():
             for box, score, label in zip(boxes, scores, labels):
                 if score > 0.5:
                     box1 = box.cpu() 
+                    print('box1')
                     if label == 24:
+                        print('label-24')
                         if self.is_stamp_valid(box1.numpy(), grid_cells):
+                            print("valid_stamp")
                             x1, y1, x2, y2 = box1.numpy()
 
                             rect = patches.Rectangle((x1, y1), x2-x1, y2-y1, linewidth=1, edgecolor='r', facecolor='none')                
