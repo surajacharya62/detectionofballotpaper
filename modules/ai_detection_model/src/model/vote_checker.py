@@ -7,7 +7,7 @@ class CheckVote():
     def __init__(self):
         pass
 
-    def reconstruct_grid_cells(margins, ballot_size, symbol_size, rows, columns):
+    def reconstruct_grid_cells(self, margins, ballot_size, symbol_size, rows, columns):
         mt, mb, ml, mr = margins
         ballot_width, ballot_height = ballot_size
         symbol_width, symbol_height = symbol_size
