@@ -307,21 +307,21 @@ def visualize_prediction(test_images, predictions, threshold=0.5):
                 print(label)
                 ax.text(x1, y1, label_text, color='blue', fontsize=12)
 
-#         plt.axis('off')  # Optional: Remove axes for cleaner visualization
-#         plt.savefig(f'../../../outputdir/output_image_{i}.png', bbox_inches='tight', pad_inches=0)
-#         plt.close()  
+        plt.axis('off')  # Optional: Remove axes for cleaner visualization
+        plt.savefig(f'../../../outputdir/output_image_{i}.png', bbox_inches='tight', pad_inches=0)
+        plt.close()  
       
 
 
-# if len(predictions) > 0:
-#     image_tensor, pred = test_set, predictions # Assuming test_set[0] returns a tuple (image, target)
-#     visualize_prediction(image_tensor, pred, threshold=0.5)
-# else:
-#     print("No predictions to visualize.") # 
+if len(predictions) > 0:
+    image_tensor, pred = test_set, predictions # Assuming test_set[0] returns a tuple (image, target)
+    visualize_prediction(image_tensor, pred, threshold=0.5)
+else:
+    print("No predictions to visualize.") # 
 
 
 
-check_vote_obj.predicted_images(test_set, predictions)
+# check_vote_obj.predicted_images(test_set, predictions)
     
 
 
