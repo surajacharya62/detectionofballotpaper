@@ -16,9 +16,7 @@ from torch.utils.data import DataLoader
 import warnings
 warnings.filterwarnings('ignore')
 from torchvision.transforms.functional import to_pil_image
-
-
-from  vote_checker import CheckVote
+from ..vote_validity.vote_checker import CheckVote
 
 check_vote_obj = CheckVote()
 
