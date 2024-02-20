@@ -295,6 +295,8 @@ def visualize_prediction(test_images, predictions, threshold=0.5):
         scores = prediction['scores']
 
         for box, score, label in zip(boxes, scores, labels):
+            print('label:-----')
+            print(label)
             if score > threshold:
                 box1 = box.cpu() 
                 x1, y1, x2, y2 = box1.numpy()
