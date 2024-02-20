@@ -218,18 +218,18 @@ def get_object_detection_model(num_classes):
 num_classes = 67
 
 # get the model using our helper function
-model = get_object_detection_model(num_classes)
+model1 = get_object_detection_model(num_classes)
 
-optimizer = torch.optim.SGD(model.parameters(),lr=0.001, momentum=0.9, weight_decay=0.0005)
+optimizer = torch.optim.SGD(model1.parameters(),lr=0.001, momentum=0.9, weight_decay=0.0005)
 num_epochs = 2
 
 device = torch.device('cuda') if torch.cuda.is_available() else torch.device('cpu')
 
 
-model.to(device)
+model1.to(device)
 total_losses = []
 for epoch in range(num_epochs):
-    model.train()  # Set the model to training mode
+    model1.train()  # Set the model to training mode
     epoch_loss = 0
     scaler = GradScaler()
     for images, targets in train_set:
@@ -238,7 +238,7 @@ for epoch in range(num_epochs):
 
         optimizer.zero_grad()
         with autocast():
-            loss_dict = model(images, targets) 
+            loss_dict = model1(images, targets) 
             losses = sum(loss for loss in loss_dict.values())
 
         # Backpropagation
@@ -254,14 +254,18 @@ for epoch in range(num_epochs):
 
     print(f"Epoch: {epoch+1}/{num_epochs}, Loss: {epoch_loss:.3f}")
 
+
 ##--------------------------------------------Testing the model
 torch.cuda.empty_cache()
-model.eval()
+torch.save(model1.state_dict(), 'trained_model1.pth')
+model2 = get_object_detection_model(num_classes)
+model2.load_state_dict(torch.load('trained_model1.pth'))
+model2.eval()
 predictions = []
 for images in test_loader:  # No labels if your test set is unlabeled
     images = images.to(device)  # Move images to the device where your model is
     with torch.no_grad():  # No gradients needed
-        output = model(images)
+        output = model2(images)
         # predictions.append(output)
         predictions.extend(output)  # Use extend to flatten the list if processing batch by batch
 
