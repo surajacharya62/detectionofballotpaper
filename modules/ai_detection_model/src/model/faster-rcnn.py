@@ -211,7 +211,7 @@ def get_object_detection_model(num_classes):
     return model
 
 
-
+torch.cuda.empty_cache()
 num_classes = 67
 
 # get the model using our helper function
@@ -251,6 +251,7 @@ for epoch in range(num_epochs):
     print(f"Epoch: {epoch+1}/{num_epochs}, Loss: {epoch_loss:.3f}")
 
 ##--------------------------------------------Testing the model
+torch.cuda.empty_cache()
 model.eval()
 predictions = []
 for images in test_loader:  # No labels if your test set is unlabeled
