@@ -22,7 +22,7 @@ import warnings
 warnings.filterwarnings('ignore')
 
 check_vote_obj = CheckVote()
-
+torch.cuda.empty_cache()
 # class ElectoralSymbolDataset(Dataset):
 #     def __init__(self, image_path, train_or_test_path, transforms): 
 #         self.image_path = image_path 
@@ -214,7 +214,7 @@ def get_object_detection_model(num_classes):
     return model
 
 
-torch.cuda.empty_cache()
+
 num_classes = 67
 
 # get the model using our helper function
