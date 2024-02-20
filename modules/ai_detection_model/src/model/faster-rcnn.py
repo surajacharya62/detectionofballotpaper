@@ -13,10 +13,13 @@ import torch
 import torchvision
 from torchvision.models.detection.faster_rcnn import FastRCNNPredictor
 from torch.utils.data import DataLoader
-import warnings
-warnings.filterwarnings('ignore')
 from torchvision.transforms.functional import to_pil_image
+from torch.cuda.amp import GradScaler, autocast
 from vote_checker import CheckVote
+
+import warnings
+
+warnings.filterwarnings('ignore')
 
 check_vote_obj = CheckVote()
 
@@ -228,19 +231,20 @@ total_losses = []
 for epoch in range(num_epochs):
     model.train()  # Set the model to training mode
     epoch_loss = 0
-
+    scaler = GradScaler()
     for images, targets in train_set:
         images = [image.to(device) for image in images]        
         targets = [{k: v.to(device) for k, v in t.items()} for t in targets]       
 
         optimizer.zero_grad()
-
-        loss_dict = model(images, targets) 
-        losses = sum(loss for loss in loss_dict.values())
+        with autocast():
+            loss_dict = model(images, targets) 
+            losses = sum(loss for loss in loss_dict.values())
 
         # Backpropagation
-        losses.backward()
-        optimizer.step()
+        scaler.scale(losses).backward()
+        scaler.step(optimizer)
+        scaler.update()
 
         epoch_loss += losses.item()
 
