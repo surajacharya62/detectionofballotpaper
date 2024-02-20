@@ -298,13 +298,14 @@ def visualize_prediction(test_images, predictions, threshold=0.5):
             if score > threshold:
                 box1 = box.cpu() 
                 x1, y1, x2, y2 = box1.numpy()
+                label_text = f"{label}"  # Replace `label` with a mapping to the actual class name if you have one
+                print(label_text)
+                print(label)
                 rect = patches.Rectangle((x1, y1), x2-x1, y2-y1, linewidth=1, edgecolor='r', facecolor='none')                
                 ax.add_patch(rect)
 
                 # Add label text
-                label_text = f"{label}"  # Replace `label` with a mapping to the actual class name if you have one
-                print(label_text)
-                print(label)
+               
                 ax.text(x1, y1, label_text, color='blue', fontsize=12)
 
         plt.axis('off')  # Optional: Remove axes for cleaner visualization
