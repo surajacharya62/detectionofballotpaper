@@ -208,7 +208,7 @@ for epoch in range(n_epochs):
   print('\nEpoch : {}, train loss : {}'.format(epoch+1, epoch_loss))
 
 
-    #validation does not requires gradient 
+  #validation does not requires gradient 
   with torch.no_grad():
       cum_loss = 0
       for x_batch, y_batch in testloader:

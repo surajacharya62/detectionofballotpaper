@@ -1,0 +1,51 @@
+path: 'E:/Oslo/OsloMet/Fourth semester/DetectionOfBallotPaper/modules/yolodata/set3'
+train: train_set/images/train
+val: val_set/images/train
+
+nc: 43  # Number of classes
+
+names: [
+  "balance",
+  "bus",
+  "candle_light",
+  "computer",
+  "conch",
+  "cycle",
+  "damphu",
+  "dog",
+  "farmer",
+  "hammer_scythe",
+  "hand_palm",
+  "heart",
+  "hoe",
+  "house",
+  "key",
+  "ladder",
+  "lock",
+  "lotus",
+  "loud_speaker",
+  "mother_and_child",
+  "namaste",
+  "nepali_big_basket",
+  "nepali_cap",
+  "nepali_jug",
+  "nepali_madal",
+  "nepali_small_basket",
+  "owl",
+  "pen",
+  "roaster",
+  "sheep",
+  "stamp",
+  "star",
+  "stick",
+  "sun",
+  "tiger",
+  "torch_light",
+  "tree",
+  "turtle",
+  "umbrella",
+  "water_glass",
+  "water_jug",
+  "woman_man",
+  "wooden_wheel"
+]

@@ -25,6 +25,36 @@ import pandas as pd
 #     print(len(all_party_symbols))
 #     return all_party_symbols
 
+def load_test_symbols(folder_path):
+    """    
+    """
+    
+    all_party_symbols = []
+    symbols = []
+
+    # print(sub_dir)
+    for filename in os.listdir(folder_path):
+        # print(filename)
+        print("folder:" + filename)
+        if filename.lower().endswith(('.jepg','png','.jpg')):
+                img = cv2.imread(os.path.join(folder_path, filename))
+                symbol_name = os.path.splitext(filename)[0] 
+                symbols.append((img,symbol_name))
+
+        if symbols:                            
+            image = random.choice(symbols)
+            all_party_symbols.append(image)        
+            symbols.clear() 
+
+        else:
+            # print("invalid directory")
+            pass
+
+    random.shuffle(all_party_symbols)    
+    return all_party_symbols
+
+
+
 
 def load_symbols(folder_path):
     """    
@@ -34,6 +64,7 @@ def load_symbols(folder_path):
     symbols = []
     for folder in os.listdir(folder_path):
         sub_folder = os.path.join(folder_path, folder) 
+        print('folder: ' + folder)
        
         # sub_folder = folder_path + folder
         if os.path.isdir(sub_folder):
@@ -63,6 +94,42 @@ def load_symbols(folder_path):
     return all_party_symbols
 
 
+def load_symbols1(folder_path):
+    """    
+    """
+    
+    all_party_symbols = []
+    
+    for folder in os.listdir(folder_path):
+        sub_folder = os.path.join(folder_path, folder) 
+        # print('folder: ' + folder)
+        symbols = []
+       
+        # sub_folder = folder_path + folder
+        if os.path.isdir(sub_folder):   
+            
+            
+            for filename in os.listdir(sub_folder):
+                # print(filename)
+                if filename.lower().endswith(('.jepg','png','.jpg')):
+                        img = cv2.imread(os.path.join(sub_folder, filename))
+                        symbol_name = os.path.splitext(filename)[0] 
+                        symbols.append((img,symbol_name))
+
+            if symbols:    
+                # print(len(symbols))                        
+                image = random.choice(symbols)
+                all_party_symbols.append(image)  
+                  
+            
+        else:
+            print("invalid directory")
+
+    random.shuffle(all_party_symbols)    
+    return all_party_symbols
+
+
+
 def draw_top_text(draw, top_text, start_y, ml, line_height, nepali_font, line_spacing=80):
     y_text = start_y
     for line in top_text:
@@ -89,7 +156,7 @@ def draw_header_box(draw, header_text, start_y, width, ml, mr, line_height, nepa
     header_box_left = ml + (width - ml - mr - header_box_width) // 2
     header_box_top = start_y 
     header_box_height = len(header_text) * (line_height + line_spacing) + extra_height
-    header_box_bottom = header_box_top + header_box_height
+    header_box_bottom = header_box_top + header_box_height 
 
     # Draw the header box
     draw.rectangle([header_box_left, header_box_top, header_box_left + header_box_width, header_box_bottom], outline=(0, 0, 0), width=line_width)
@@ -112,7 +179,9 @@ def draw_symbols(ballot_paper, symbols, start_y, columns, rows, ml, cell_width, 
     random_symbols = random.sample(symbols, len(symbols))   
     # print(len(random_symbols))
     cell_height
-    symbol_boxes = []
+    symbol_boxes_with_name = []
+    print(num_candidates)
+    print(len(symbols))
     if num_candidates <= len(symbols):
         # Place the symbols in the grid
         y_pos = 0
@@ -121,7 +190,7 @@ def draw_symbols(ballot_paper, symbols, start_y, columns, rows, ml, cell_width, 
             col = i % columns          
 
             symbol, symbol_name = random_symbols[i]   
-            print(symbol_name)       
+                   
             symbol_pil = Image.fromarray(cv2.cvtColor(symbol, cv2.COLOR_BGR2RGB))
 
 
@@ -130,16 +199,17 @@ def draw_symbols(ballot_paper, symbols, start_y, columns, rows, ml, cell_width, 
             bottom_margin = 20
             x_pos = ml + col * cell_width + left_gap 
             # y_pos = start_y + row * cell_height + (cell_height - symbol_size[1]) // 2           
-            y_pos = start_y + row * cell_height  + top_margin
+            y_pos = start_y + row * cell_height + top_margin
             available_height = cell_height - (top_margin + bottom_margin)
             
             # Calculate and save the bounding box of each symbol
-            symbol_box = (symbol_name,x_pos, y_pos, x_pos + symbol_size[0], y_pos + symbol_size[1])
-            symbol_boxes.append(symbol_box)                      
+            symbol_box = (symbol_name, x_pos, y_pos, x_pos + symbol_size[0], y_pos + symbol_size[1]-40)
+            symbol_boxes_with_name.append(symbol_box)                      
                       
             symbol_pil = symbol_pil.resize((symbol_size[0], min(symbol_size[1], available_height)))               
             ballot_paper.paste(symbol_pil, (x_pos, y_pos))
-        return symbol_boxes 
+
+        return symbol_boxes_with_name 
 
             
             
@@ -155,7 +225,7 @@ def draw_grid(draw, start_y, rows, columns, ml, mr, cell_height, cell_width, adj
     adjusted_cell_height = cell_height
     actual_rows = math.ceil(candidates / columns)  # Actual number of rows needed   
     print(start_y)
-    for row in range(actual_rows ):  # +1 to draw the line below the last row
+    for row in range(actual_rows + 1 ):  # +1 to draw the line below the last row
         y = start_y + row * adjusted_cell_height        
         x_end = ml + columns * cell_width           
         draw.line([(ml, y), (x_end, y)], fill=(0, 0, 0), width=line_width)
@@ -168,7 +238,7 @@ def draw_grid(draw, start_y, rows, columns, ml, mr, cell_height, cell_width, adj
         draw.line([(x, start_y), (x, y_end)], fill=(0, 0, 0), width=line_width)
 
     #Ensure the bottom right corner of the last symbol's cell is closed if needed
-    if last_row_symbols < columns:
+    if last_row_symbols <= columns:
         x = ml + last_row_symbols * cell_width
         y = start_y + (actual_rows - 1) * adjusted_cell_height
         draw.line([(x, y), (x, y + adjusted_cell_height)], fill=(0, 0, 0), width=line_width)  # Vertical
@@ -218,7 +288,7 @@ def create_ballot(rows, columns, candidates, symbols, symbol_size, top_text, hea
     if mt_updated < adjusted_height - mb:
         # Place symbols in the grid, starting from the updated margin
         actual_candidates = min(candidates, rows * columns)         
-        draw_symbols(ballot_paper, symbols, mt_updated, columns, rows, ml, cell_width, cell_height, symbol_size, candidates)
+        symbols_boxes = draw_symbols(ballot_paper, symbols, mt_updated, columns, rows, ml, cell_width, cell_height, symbol_size, candidates)
 
         # Draw grid lines within the symbol area, starting from the updated margin
         grid_end_y = mt_updated + rows * cell_height
@@ -305,14 +375,14 @@ def create_stamped_ballots(symbols, stamp_path, rows, columns, candidates,
     # symbol_images, symbol_names = zip(*symbols)
     stamps = []
     for filename in os.listdir(stamp_path):
-        print(filename)
+       
         if filename.lower().endswith(('.jpeg', 'png', '.jpg')):
             stamp_image_path = os.path.join(stamp_path, filename)
             stamp_name = os.path.splitext(filename)[0]             
             stamp = Image.open(stamp_path + filename).convert("RGBA")           
             stamps.append((stamp, stamp_name))
     stamp = random.choice(stamps)
-    print(stamp)
+   
     
     # calls create_ballot function for creating ballot paper with the symbols included.
     ballot_paper, y_updated, symbol_boxes = create_ballot(rows, columns, candidates, symbols, symbol_size, top_text, header_text, signature_text, 
@@ -334,19 +404,21 @@ def create_stamped_ballots(symbols, stamp_path, rows, columns, candidates,
 
     annotations = []
     for symbol_box in symbol_boxes:
-        annotations.append(['symbol'] + list(symbol_box))  # Replace 'symbol' with actual symbol labels if available
-    annotations.append(['valid_stamp'] + valid_stamp_boxes)
-    # annotations.append(['invalid_stamp'] + invalid_stamp_boxes) 
+        annotations.append(list(symbol_box))  # Replace 'symbol' with actual symbol labels if available
+    annotations.append(valid_stamp_boxes)
+    # annotations.append(['invalid_stamp'] + invalid_stamp_boxes)  
     
     return valid_ballot, invalid_ballot, annotations
 
 
 
+# symbols_train_path = '../../../datasets_symbol/'
+symbols_test_path = '../../../validation_folder1' 
+# symbols = load_symbols(symbols_train_path)
+# print(len(symbols))
 
 
-symbols_path = '../../../datasets/'
-symbols = load_symbols(symbols_path)
-print(len(symbols))
+
 stamp_path = '../../../datasets_stamp/train/'  # Path to your stamp image
 symbol_size = (189, 189)  # Symbol size (width, height)
 
@@ -356,26 +428,30 @@ top_text = ["Province : Bagmati", "District: Kathmandu", "House of Representativ
 header_text = ["National Assembly Member Election", " Ballots of Proportional Electoral System","[ Stamp only inside a symbol box ]"]
 signature_text = "Signature of Polling Officer : ......"
 
+print("test")
 
 
-header = ['image_id','symbol','label', 'x1', 'y1', 'x2', 'y2']
+header = ['image_id','label', 'x1', 'y1', 'x2', 'y2']
 import csv
-with open('../../../ballot_datasets/valid/annotations.csv', 'w', newline='') as file:
+with open('../../../validation_set/set4/annotations.csv', 'w', newline='') as file:
     writer = csv.writer(file) 
-    writer.writerow(header)  # Write the header
+    writer.writerow(header)  # Write the header 
 
-    for i in range(1, 2): 
+    for i in range(1, 200):
+        
+        symbols = load_symbols1(symbols_test_path)
+        print(len(symbols))
         valid_ballot, invalid_ballot, annotations = create_stamped_ballots(symbols, stamp_path,
-                                                            9,6 , 53, symbol_size,
+                                                            7,6 , 42, symbol_size,
                                                             top_text, header_text, signature_text, 
                                                             ballot_size=(595, 842),
                                                                 margins=(300, 300, 200, 200))
 
         
-        valid_ballot.save(f'../../../ballot_datasets/valid/position_{i:04}.jpg')
+        valid_ballot.save(f'../../../validation_set/set4/val/image_{i:04}.jpg')
         # invalid_ballot.save(f'../../../datasets/ballot_datasets/invalid/invalid_{i:04}.jpg')
 
         for symbol_name, *bbox in annotations:
-            writer.writerow([f'valid_{i:04}.jpg', symbol_name] + bbox)
+            writer.writerow([f'image_{i:04}.jpg', symbol_name.rpartition('_')[0] ] + bbox) 
           
 

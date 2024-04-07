@@ -1,228 +1,450 @@
+# # import pandas as pd
 
-# import torch
-# import torchvision
-# from torchvision import datasets, transforms
+# # listi = [(7,8,9),(3,4,5),(7,8,9)]
+# # # listi.append(('','image_name','pred_label','actual_label'))
 
-# traindir = "../../../datasets/ballot_datasets/training"
-# testdir = "../../../datasets/ballot_datasets/testing"
+# # df = pd.DataFrame(listi, columns=['Image_name1', 'Image_name2', 'pred_labels'])
 
-# train_transforms = transforms.Compose([transforms.Resize((500,500)),
-#                                        transforms.ToTensor(),                                
-#                                        torchvision.transforms.Normalize(
-#                                            mean=[0.485, 0.456, 0.406],
-#                                            std=[0.229, 0.224, 0.225],
-#     ),
-#                                        ])
+# # print(listi)
+# # df[]
+# # print(sorted(df['Image_name1']))
 
-# test_transforms = transforms.Compose([transforms.Resize((500,500)),
-#                                       transforms.ToTensor(),
-#                                       torchvision.transforms.Normalize(
-#                                           mean=[0.485, 0.456, 0.406],
-#                                           std=[0.229, 0.224, 0.225],
-#     ),
-#                                       ])
+# import pandas as pd
 
-# train_data = datasets.ImageFolder(traindir,transform=train_transforms)
-# test_data = datasets.ImageFolder(testdir,transform=test_transforms)
+# # Assuming df is your DataFrame
+# data = {
+#     'Image_name1': ['image_0002.jpg', 'image_0002.jpg', 'image_0002.jpg', 'image_0002.jpg'],
+#     'Image_name2': ['image_0002.jpg', 'image_0002.jpg', 'image_0002.jpg', 'image_0002.jpg'],
+#     'pred_labels': ['tensor(15)', 'tensor(13)', 'tensor(5)', 'tensor(5)'],
+#     'actual_labels': ['tensor(28)', 'tensor(23)', 'tensor(17)', 'tensor(25)']
+# }
+# df = pd.DataFrame(data)
 
-# trainloader = torch.utils.data.DataLoader(train_data, shuffle = True, batch_size=16)
-# testloader = torch.utils.data.DataLoader(test_data, shuffle = True, batch_size=16)
+# # Extracting numerical values from the tensor strings
+# df['pred_labels_num'] = df['pred_labels'].str.extract('(\d+)').astype(int)
+# df['actual_labels_num'] = df['actual_labels'].str.extract('(\d+)').astype(int)
 
-# import cv2
-import numpy as np
-# images, label = next(iter(trainloader))
-# print(images.shape[0])
-# print(label)
+# # Sorting by the numerical columns
+# df_sorted = df.sort_values(by=['pred_labels_num', 'actual_labels_num'])
 
-# # for i,data  in enumerate(datas):
-# #    print(data.size[0])
-# def tensor_to_image(tensor):
-#     # Undo normalization
-#     mean = np.array([0.485, 0.456, 0.406])
-#     std = np.array([0.229, 0.224, 0.225])
-#     tensor = tensor * torch.tensor(std[:, None, None]) + torch.tensor(mean[:, None, None])
-#     tensor = torch.clamp(tensor, 0, 1)
+# # If you want to remove the helper columns and keep only the original format
+# df_sorted.drop(['pred_labels_num', 'actual_labels_num'], axis=1, inplace=True)
+
+# # print(df_sorted)
+
+# # zip(final_boxes, final_scores, final_labels, actual_labels):
+
+# # from collections import Counter
+
+# # # predicted_labels = [15, 13, 5, 5, 20, 14]  # Example predicted labels
+# # # true_labels = [28, 23, 17, 5, 21, 24]     # Example true labels
+
+# # predicted_labels = [15, 13,  5,  5, 20, 14, 29, 20, 28, 39, 41, 41, 24, 42,  1, 34, 19, 32,
+# #         35, 17, 34, 32, 32, 25, 42,  1, 36,  8,  6,  8, 26, 37, 25, 40, 29, 33,
+# #         29, 25, 21, 23,  2, 19]
+# # true_labels = [28, 23, 17, 25, 21, 24, 23, 42, 20, 32, 15, 13, 25,  2, 37, 32, 29,  1,
+# #         14, 35,  6, 12, 19, 35, 17, 34, 39,  2,  5, 26, 14, 29, 34, 37, 20, 29,
+# #         36, 41, 22,  5, 41, 19, 30]
+
+# # # Step 1: Identify correctly predicted labels
+# # correct_labels = set(predicted_labels) & set(true_labels)
+# # print(correct_labels)
+
+# # # Step 2: Identify missed and falsely predicted labels
+# # missed_labels = set(true_labels) - set(predicted_labels)
+# # falsely_predicted_labels = set(predicted_labels) - set(true_labels)
+
+# # # Optional: Detailed comparison using Counter
+# # predicted_counts = Counter(predicted_labels)
+# # true_counts = Counter(true_labels)
+
+# # # Display results
+# # print("Correctly Predicted Labels (regardless of frequency):", correct_labels)
+# # print("Missed Labels:", missed_labels)
+# # print("Falsely Predicted Labels:", falsely_predicted_labels)
+
+# # # For detailed analysis: Check the counts
+# # # This part is for understanding which labels were over/under-predicted
+# # print("\nDetailed Comparison:")
+# # for label in set(true_labels + predicted_labels):
+# #     print(f"Label {label}: True Count = {true_counts[label]}, Predicted Count = {predicted_counts[label]}")
+# #----------------------------
+# # def compare_unordered_labels(predicted_labels, true_labels):
+# #     """
+# #     Compares predicted labels against true labels without considering the order.
+# #     Ensures each label is matched only once.
     
-#     # Convert to numpy and transpose
-#     numpy_image = tensor.numpy().transpose(1, 2, 0)
-#     numpy_image = (numpy_image * 255).astype(np.uint8)
-#     return numpy_image
-
-
-# for i in range(images.shape[0]):
-#     numpy_image = tensor_to_image(images[i])
-#     cv2.imshow('Image', numpy_image)
-#     cv2.waitKey(0) 
-
-# cv2.destroyAllWindows()
-
-# train = [np.array(0.7005201, dtype=float32), array(0.69502616, dtype=float32), array(0.6918939, dtype=float32), array(0.6907588, dtype=float32), array(0.68251705, dtype=float32), array(0.7193494, dtype=float32), array(0.71271116, dtype=float32), array(0.6991049, dtype=float32), array(0.6822881, dtype=float32), array(0.6719694, dtype=float32), array(0.67873454, dtype=float32), array(0.67182237, dtype=float32), array(0.66507864, dtype=float32), array(0.6702996, dtype=float32), array(0.666229, dtype=float32), array(0.6793914, dtype=float32), array(0.66706353, dtype=float32), array(0.6706848, dtype=float32), array(0.672568, dtype=float32), array(0.6658086, dtype=float32), array(0.663919, dtype=float32), array(0.6664936, dtype=float32), array(0.67700815, dtype=float32), array(0.65485543, dtype=float32), array(0.6726405, dtype=float32), array(0.65289664, dtype=float32), array(0.6508676, dtype=float32), array(0.6627098, dtype=float32), array(0.6654881, dtype=float32), array(0.65696156, dtype=float32), array(0.6702744, dtype=float32), array(0.6419332, dtype=float32), array(0.6440389, dtype=float32), array(0.6483857, dtype=float32), array(0.6455904, dtype=float32), array(0.63974196, dtype=float32), array(0.64787865, dtype=float32), array(0.65279025, dtype=float32), array(0.64690757, dtype=float32), array(0.6484465, dtype=float32), array(0.64069057, dtype=float32), array(0.6344263, dtype=float32), array(0.6450904, dtype=float32), array(0.6436385, dtype=float32), array(0.6413799, dtype=float32), array(0.6381174, dtype=float32), array(0.6372319, dtype=float32), array(0.6305471, dtype=float32), array(0.629254, dtype=float32), array(0.6324579, dtype=float32)]
-# loss = [array(1.1081887, dtype=float32), array(0.5994436, dtype=float32), array(0.7301602, dtype=float32), array(1.0985765, dtype=float32), array(0.65765667, dtype=float32), array(0.58383393, dtype=float32), array(0.7071645, dtype=float32), array(0.68641216, dtype=float32), array(0.61261445, dtype=float32), array(0.69518703, dtype=float32), array(0.6842506, dtype=float32), array(0.57812047, dtype=float32), array(0.6435528, dtype=float32), array(0.6701226, dtype=float32), array(0.5586138, dtype=float32), array(0.6717968, dtype=float32), array(0.61406386, dtype=float32), array(0.6595597, dtype=float32), array(0.71634126, dtype=float32), array(0.43451324, dtype=float32), array(0.73738647, dtype=float32), array(0.7565312, dtype=float32), array(0.8755924, dtype=float32), array(0.8178384, dtype=float32), array(0.6090582, dtype=float32), array(0.5485822, dtype=float32), array(0.7065742, dtype=float32), array(0.7771247, dtype=float32), array(1.3289089, dtype=float32), array(0.5684599, dtype=float32), array(0.7417024, dtype=float32), array(0.64558446, dtype=float32), array(0.6608634, dtype=float32), array(0.62802124, dtype=float32), array(0.6918328, dtype=float32), array(0.6330901, dtype=float32), array(0.6004498, dtype=float32), array(0.64431673, dtype=float32), array(0.5459239, dtype=float32), array(0.5713643, dtype=float32), array(0.60349417, dtype=float32), array(0.6884322, dtype=float32), array(0.7491126, dtype=float32), array(0.7616717, dtype=float32), array(0.63557833, dtype=float32), array(0.638938, dtype=float32), array(0.70609385, dtype=float32), array(0.71591455, dtype=float32), array(0.5678423, dtype=float32), array(0.6491304, dtype=float32)]
-
-
-
-import matplotlib.pyplot as plt
-
-# trainloss = [0.7047932147979736,0.7074649333953857,0.7029479146003723,0.6927050352096558,0.6797118782997131]
-# testloss = [0.7801194787025452,0.7157936692237854,0.7342474460601807,0.692432701587677,0.6031248569488525]
-# train = [np.array(0.7005201, dtype=np.float32), np.array(0.69502616, dtype=np.float32), np.array(0.6918939, dtype=np.float32), np.array(0.6907588, dtype=np.float32), np.array(0.68251705, dtype=np.float32), np.array(0.7193494, dtype=np.float32), np.array(0.71271116, dtype=np.float32), np.array(0.6991049, dtype=np.float32), np.array(0.6822881, dtype=np.float32), np.array(0.6719694, dtype=np.float32), np.array(0.67873454, dtype=np.float32), np.array(0.67182237, dtype=np.float32), np.array(0.66507864, dtype=np.float32), np.array(0.6702996, dtype=np.float32), np.array(0.666229, dtype=np.float32), np.array(0.6793914, dtype=np.float32), np.array(0.66706353, dtype=np.float32), np.array(0.6706848, dtype=np.float32), np.array(0.672568, dtype=np.float32), np.array(0.6658086, dtype=np.float32), np.array(0.663919, dtype=np.float32), np.array(0.6664936, dtype=np.float32), np.array(0.67700815, dtype=np.float32), np.array(0.65485543, dtype=np.float32), np.array(0.6726405, dtype=np.float32), np.array(0.65289664, dtype=np.float32), np.array(0.6508676, dtype=np.float32), np.array(0.6627098, dtype=np.float32), np.array(0.6654881, dtype=np.float32), np.array(0.65696156, dtype=np.float32), np.array(0.6702744, dtype=np.float32), np.array(0.6419332, dtype=np.float32), np.array(0.6440389, dtype=np.float32), np.array(0.6483857, dtype=np.float32), np.array(0.6455904, dtype=np.float32), np.array(0.63974196, dtype=np.float32), np.array(0.64787865, dtype=np.float32), np.array(0.65279025, dtype=np.float32), np.array(0.64690757, dtype=np.float32), np.array(0.6484465, dtype=np.float32), np.array(0.64069057, dtype=np.float32), np.array(0.6344263, dtype=np.float32), np.array(0.6450904, dtype=np.float32), np.array(0.6436385, dtype=np.float32), np.array(0.6413799, dtype=np.float32), np.array(0.6381174, dtype=np.float32), np.array(0.6372319, dtype=np.float32), np.array(0.6305471, dtype=np.float32), np.array(0.629254, dtype=np.float32), np.array(0.6324579, dtype=np.float32)]
-
-# # Convert train list to a NumPy array for easier handling
-# train_values = np.array(train)
-
-
-# loss = [np.array(1.1081887, dtype=np.float32), np.array(0.5994436, dtype=np.float32), np.array(0.7301602, dtype=np.float32), np.array(1.0985765, dtype=np.float32), np.array(0.65765667, dtype=np.float32), np.array(0.58383393, dtype=np.float32), np.array(0.7071645, dtype=np.float32), np.array(0.68641216, dtype=np.float32), np.array(0.61261445, dtype=np.float32), np.array(0.69518703, dtype=np.float32), np.array(0.6842506, dtype=np.float32), np.array(0.57812047, dtype=np.float32), np.array(0.6435528, dtype=np.float32), np.array(0.6701226, dtype=np.float32), np.array(0.5586138, dtype=np.float32), np.array(0.6717968, dtype=np.float32), np.array(0.61406386, dtype=np.float32), np.array(0.6595597, dtype=np.float32), np.array(0.71634126, dtype=np.float32), np.array(0.43451324, dtype=np.float32), np.array(0.73738647, dtype=np.float32), np.array(0.7565312, dtype=np.float32), np.array(0.8755924, dtype=np.float32), np.array(0.8178384, dtype=np.float32), np.array(0.6090582, dtype=np.float32), np.array(0.5485822, dtype=np.float32), np.array(0.7065742, dtype=np.float32), np.array(0.7771247, dtype=np.float32), np.array(1.3289089, dtype=np.float32), np.array(0.5684599, dtype=np.float32), np.array(0.7417024, dtype=np.float32), np.array(0.64558446, dtype=np.float32), np.array(0.6608634, dtype=np.float32), np.array(0.62802124, dtype=np.float32), np.array(0.6918328, dtype=np.float32), np.array(0.6330901, dtype=np.float32), np.array(0.6004498, dtype=np.float32), np.array(0.64431673, dtype=np.float32), np.array(0.5459239, dtype=np.float32), np.array(0.5713643, dtype=np.float32), np.array(0.60349417, dtype=np.float32), np.array(0.6884322, dtype=np.float32), np.array(0.7491126, dtype=np.float32), np.array(0.7616717, dtype=np.float32), np.array(0.63557833, dtype=np.float32), np.array(0.638938, dtype=np.float32), np.array(0.70609385, dtype=np.float32), np.array(0.71591455, dtype=np.float32), np.array(0.5678423, dtype=np.float32), np.array(0.6491304, dtype=np.float32)]
-
-# # Convert the list of np.array values to a single np.array for easier handling and plotting
-# loss_values = np.array(loss)
-
-# plt.plot(train_values, label="Training loss")
-# plt.plot(loss_values, label="Val loss")
-# plt.title('Training and Test Loss for Resnet18')
-# plt.xlabel('Epochs')
-# plt.ylabel('Loss')
-# plt.legend()
-# plt.show()
-
-import torch
-predictions = {'boxes': torch.tensor([[ 43.7332, 213.5269, 111.2414, 372.6928],
-        [144.2942, 143.8887, 360.3079, 183.2080],
-        [140.0604, 146.5337, 384.2130, 184.0802],
-        [187.1325, 212.2351, 252.5611, 297.4113],
-        [189.3467, 317.2808, 251.1578, 447.3797],
-        [327.7851, 197.9452, 394.5064, 430.7094],
-        [179.9222, 216.4984, 255.0771, 326.7257],
-        [ 36.9537,  52.4798, 162.3382, 135.8132],
-        [ 27.5536, 224.6903, 111.1299, 449.6593],
-        [400.1011, 209.0044, 469.4872, 318.3181],
-        [108.4521, 210.8337, 179.2451, 289.4620],
-        [ 44.2276, 350.2479, 109.8677, 440.1537],
-        [256.3594, 201.5649, 324.1126, 322.2958],
-        [111.0046, 214.4788, 183.1559, 264.7868],
-        [395.4152, 201.5765, 473.2253, 403.9206],
-        [ 44.2392, 360.4931, 105.9727, 441.3641],
-        [185.8333, 304.4647, 250.1510, 438.9623],
-        [256.7484, 315.1017, 326.6691, 433.4090],
-        [ 39.7129, 221.7265, 105.5536, 425.4415],
-        [ 31.0928, 359.9680, 105.8520, 444.7391],
-        [327.2137, 208.6843, 395.3152, 318.6118],
-        [ 41.9462, 214.9508, 103.1827, 316.7636],
-        [330.9976, 328.9052, 395.7101, 436.6003],
-        [112.5121, 308.5482, 182.3063, 442.4894],
-        [ 39.6219,  49.8180, 155.1566, 133.5434],
-        [180.9735, 304.1204, 255.2358, 437.1417],
-        [ 32.3822, 220.3020, 115.3819, 319.4560],
-        [403.3217, 217.2181, 470.8431, 411.5781],
-        [108.3221, 202.4852, 179.7579, 383.3499],
-        [106.6256, 205.0252, 183.3906, 350.2986],
-        [393.4212, 206.8400, 475.0756, 414.0876],
-        [330.4275, 200.3359, 396.0984, 427.1608],
-        [331.2699, 208.0384, 396.2911, 317.1698],
-        [325.2518, 335.1362, 394.4467, 438.0014],
-        [188.0617, 202.1207, 256.6792, 374.2356],
-        [188.0323, 211.3035, 253.1574, 430.1757],
-        [176.5048, 314.5686, 249.1274, 452.0683],
-        [182.9795, 207.7845, 254.0110, 308.3762],
-        [181.3702, 212.6850, 255.1862, 296.9006],
-        [114.6198, 220.7239, 181.7154, 348.8929],
-        [398.0839, 212.8182, 474.4420, 317.7780],
-        [109.6282, 215.9647, 185.4577, 268.5195],
-        [326.7979, 205.9993, 394.6747, 316.8679],
-        [110.3082, 308.6912, 183.2275, 432.4457],
-        [332.3318, 213.0410, 392.8253, 324.2051],
-        [103.4397, 306.3077, 185.7821, 436.7786],
-        [ 34.1547,  71.2756, 157.5084, 137.0765],
-        [394.4037, 209.0485, 470.2132, 325.3848],
-        [ 44.2555,  58.9437, 257.2470, 108.2195],
-        [392.8712, 185.7965, 472.4409, 430.6940],
-        [178.5426, 268.7610, 252.6142, 442.1004],
-        [181.5426, 212.4068, 251.4391, 430.6089],
-        [134.3986, 142.7555, 367.3970, 179.2872],
-        [399.7759, 199.8803, 476.8888, 368.7017],
-        [182.5879, 203.7275, 250.8727, 331.0030],
-        [328.7737, 347.1626, 391.9911, 444.6764],
-        [183.0701, 276.8831, 253.3894, 437.3199],
-        [ 22.1461,  48.7611, 169.0864, 133.5777],
-        [262.3084, 336.2265, 327.7475, 440.2613],
-        [333.7722, 221.1070, 392.4583, 438.5511],
-        [188.0934, 222.5310, 250.5706, 326.8428],
-        [134.9425, 140.6096, 376.7438, 182.6516],
-        [396.3344, 341.4020, 469.3115, 420.6736]], device='cuda:0'), 'labels': torch.tensor([10, 25, 14, 11, 10, 12,  2, 25, 14, 12, 12, 10, 12, 20, 12, 25, 11, 12,
-        25, 14, 12, 25, 11, 10, 10, 12, 14, 10, 12, 20, 28, 11, 11, 12, 11, 10,
-        14, 28, 12, 10, 28,  4, 28, 11, 10, 12,  2, 20, 25, 20, 20,  2, 20, 11,
-        20, 10, 28, 14, 10, 10, 10, 10, 25], device='cuda:0'), 'scores': torch.tensor([0.4960, 0.4687, 0.3923, 0.3652, 0.3295, 0.2598, 0.2555, 0.2408, 0.2322,
-        0.2234, 0.2140, 0.2116, 0.1990, 0.1882, 0.1701, 0.1556, 0.1522, 0.1453,
-        0.1443, 0.1338, 0.1289, 0.1265, 0.1195, 0.1187, 0.1129, 0.1099, 0.1054,
-        0.1009, 0.0948, 0.0926, 0.0904, 0.0849, 0.0830, 0.0828, 0.0826, 0.0820,
-        0.0793, 0.0776, 0.0765, 0.0756, 0.0756, 0.0706, 0.0683, 0.0661, 0.0648,
-        0.0639, 0.0629, 0.0620, 0.0619, 0.0591, 0.0587, 0.0582, 0.0568, 0.0565,
-        0.0559, 0.0531, 0.0529, 0.0528, 0.0527, 0.0520, 0.0516, 0.0510, 0.0504],
-       device='cuda:0')}
-
-
-
-image = torch.tensor([[2.2489, 2.2489, 2.2489,  ..., 2.2489, 2.2489, 2.2489],
-        [2.2489, 2.2489, 2.2489,  ..., 2.2489, 2.2489, 2.2489],
-        [2.2489, 2.2489, 2.2489,  ..., 2.2489, 2.2489, 2.2489],
-        ...,
-        [2.2489, 2.2489, 2.2489,  ..., 2.2489, 2.2489, 2.2489],
-        [2.2489, 2.2489, 2.2489,  ..., 2.2489, 2.2489, 2.2489],
-        [2.2489, 2.2489, 2.2489,  ..., 2.2489, 2.2489, 2.2489]])
-
-
-import torch
-from torchvision.transforms.functional import to_pil_image
-import numpy as np
-import matplotlib.pyplot as plt
-import matplotlib.patches as patches
-
-# Example normalization parameters, adjust as necessary
-mean = np.array([0.485, 0.456, 0.406])
-std = np.array([0.229, 0.224, 0.225])
-
-def denormalize(tensor, means, stds):
-    """Denormalizes image tensors using mean and std"""
-    denormalized = torch.clone(tensor)
-    for t, m, s in zip(denormalized, means, stds):
-        t.mul_(s).add_(m)
-    return denormalized
-
-def visualize_prediction(image_tensor, prediction, threshold=0.5):
-    """
-    Visualize the prediction on the image tensor.
+# #     Args:
+# #     - predicted_labels (list): The list of predicted labels.
+# #     - true_labels (list): The list of true labels in their correct order.
     
-    Parameters:
-    - image_tensor: the image tensor in CxHxW format
-    - prediction: the prediction output from the model
-    - threshold: threshold for prediction score
-    """
-    # Denormalize the image
-    image_tensor = denormalize(image_tensor, mean, std)
-    
-    # Convert tensor to PIL Image
-    image = to_pil_image(image_tensor.cpu())
-    
-    # Convert image to numpy array for plotting
-    image_np = np.array(image)
-    fig, ax = plt.subplots(1)
-    ax.imshow(image_np)
+# #     Returns:
+# #     - correct_matches (int): Number of correctly matched labels.
+# #     - unmatched_predictions (list): Predicted labels that couldn't be matched.
+# #     - unmatched_trues (list): True labels that weren't matched by any prediction.
+# #     """
+# #     true_labels_copy = true_labels.copy()
+# #     correct_matches = 0
+# #     unmatched_predictions = []
 
-    # Draw the bounding boxes
-    boxes = prediction['boxes'].cpu().numpy()
-    scores = prediction['scores'].cpu().numpy()
-    
-    for box, score in zip(boxes, scores):
-        if score > threshold:
-            x1, y1, x2, y2 = box
-            rect = patches.Rectangle((x1, y1), x2-x1, y2-y1, linewidth=1, edgecolor='r', facecolor='none')
-            ax.add_patch(rect)
-    
-    plt.axis('off')  # Optionally remove axes for cleaner visualization
-    plt.show()
+# #     for predicted in predicted_labels:
+# #         if predicted in true_labels_copy:
+# #             correct_matches += 1
+# #             true_labels_copy.remove(predicted)  # Mark off the matched label
+# #         else:
+# #             unmatched_predictions.append(predicted)
 
-# Assuming 'image' and 'predictions' are defined as in your provided code snippet
-# Convert the list representation of the image to a tensor
-image_tensor = torch.tensor(image)  # Make sure to add `.to(device)` if your model and data are on CUDA
+# #     return correct_matches, unmatched_predictions, true_labels_copy
 
-# Now you can call the visualization function
-visualize_prediction(image_tensor, predictions, threshold=0.5)
+# # # Example usage
+# # predicted_labels = [15, 13, 5, 5, 20, 14]  # Random order
+# # true_labels = [28, 23, 17, 5, 21, 24]  # Correct order
+
+# # correct_matches, unmatched_predictions, unmatched_trues = compare_unordered_labels(predicted_labels, true_labels)
+
+# # print(f"Correct Matches: {correct_matches}")
+# # print(f"Unmatched Predictions: {unmatched_predictions}")
+# # print(f"Unmatched True Labels: {unmatched_trues}")
+# #------------------------------
+# # from collections import Counter
+
+# # def detailed_label_comparison(predicted_labels, true_labels):
+# #     predicted_counts = Counter(predicted_labels)
+# #     true_counts = Counter(true_labels)
+    
+# #     correct_matches = 0
+# #     for label, pred_count in predicted_counts.items():
+# #         true_count = true_counts.get(label, 0)
+# #         correct_matches += min(pred_count, true_count)  # Count as correct match the minimum of the two counts
+
+# #     return correct_matches, len(predicted_labels) - correct_matches, len(true_labels) - correct_matches
+
+# # # Example usage
+# # # predicted_labels = [15, 13, 5, 5, 20, 14, 5]  # Predicted labels with repetitions
+# # # true_labels = [28, 23, 17, 25, 21, 24, 5, 5, 5]  # True labels with repetitions
+
+# # predicted_labels = [15, 13,  5,  5, 20, 14, 29, 20, 28, 39, 41, 41, 24, 42,  1, 34, 19, 32,
+# #         35, 17, 34, 32, 32, 25, 42,  1, 36,  8,  6,  8, 26, 37, 25, 40, 29, 33,
+# #         29, 25, 21, 23,  2, 19]
+# # true_labels = [28, 23, 17, 25, 21, 24, 23, 42, 20, 32, 15, 13, 25,  2, 37, 32, 29,  1,
+# #         14, 35,  6, 12, 19, 35, 17, 34, 39,  2,  5, 26, 14, 29, 34, 37, 20, 29,
+# #         36, 41, 22,  5, 41, 19, 30]
+
+# # correct_matches, over_predictions, under_predictions = detailed_label_comparison(predicted_labels, true_labels)
+
+# # print(f"Correct Matches: {correct_matches}")
+# # print(f"Over Predictions (Predicted not in True): {over_predictions}")
+# # print(f"Under Predictions (True not Predicted): {under_predictions}")
+
+# #-------------------------------
+
+# # import pandas as pd
+
+# # def compare_and_record(true_labels, predicted_labels, image_id):
+# #     # Copy the predicted labels list to manipulate it without affecting the original
+# #     predicted_labels_copy = predicted_labels.copy()
+    
+# #     # Prepare a list to hold the comparison results
+# #     comparison_results = []
+
+# #     for true_label in true_labels:
+# #         if true_label in predicted_labels_copy:
+# #             # If a match is found, mark it as valid and remove one instance of this label from the predicted list
+# #             comparison_results.append({"image_id": image_id, "true_label": true_label, "predicted_label": true_label, "valid": True})
+# #             predicted_labels_copy.remove(true_label)  # Remove to prevent double-counting
+# #         else:
+# #             # If no match is found, mark as invalid
+# #             comparison_results.append({"image_id": image_id, "true_label": true_label, "predicted_label": None, "valid": False})
+    
+# #     # Convert the comparison results to a DataFrame
+# #     results_df = pd.DataFrame(comparison_results)
+# #     return results_df
+
+# # # Example data
+# # image_id = "image_id_001"
+# # # true_labels = [20, 30, 20, 15]  # True labels might contain duplicates
+# # # predicted_labels = [30, 20, 15, 50]  # Predicted labels are unordered and might not match true labels exactly
+# # predicted_labels = [15, 13,  5,  5, 20, 14, 29, 20, 28, 39, 41, 41, 24, 42,  1, 34, 19, 32,
+# #         35, 17, 34, 32, 32, 25, 42,  1, 36,  8,  6,  8, 26, 37, 25, 40, 29, 33,
+# #         29, 25, 21, 23,  2, 19]
+# # true_labels = [28, 23, 17, 25, 21, 24, 23, 42, 20, 32, 15, 13, 25,  2, 37, 32, 29,  1,
+# #         14, 35,  6, 12, 19, 35, 17, 34, 39,  2,  5, 26, 14, 29, 34, 37, 20, 29,
+# #         36, 41, 22,  5, 41, 19, 30]
+
+# # # Compare and create a DataFrame of results
+# # results_df = compare_and_record(true_labels, predicted_labels, image_id)
+# # print(results_df)
+# #--------------------
+
+# from model.visualize_prediction import VisualizePrediction
+# obj_viz = VisualizePrediction()
+
+
+class CompareBoundingBox:
+
+    def labels(self, test_set, predictions):
+        total_comparisions = []
+        for i, (test_data, label) in enumerate(zip(test_set, predictions)):  
+            # print(test_data, label)
+
+            actual_labels = test_data[1]['labels']  
+            true_bboxes = test_data[1]['boxes']
+            image_name1 = test_data[2]
+
+            predicted_bboxes = label[0]['boxes'] 
+            predicted_labels = label[0]['labels']
+            scores = label[0]['scores']
+            image_name = label[2]   
+
+            indices = obj_viz.apply_nms(predicted_bboxes, scores)   
+            # final_boxes, final_scores, final_labels = self.select_highest_confidence_per_class( 
+            #                                                 boxes, scores, labels, indices )      
+
+            final_boxes, final_scores, final_labels  =  predicted_bboxes[indices], scores[indices], predicted_labels[indices]   
+            # print(final_boxes)
+            # print(final_labels)
+            final_boxes = final_boxes.tolist()
+            final_labels = final_labels.tolist()
+            true_bboxes = true_bboxes.tolist()
+            actual_labels = actual_labels.tolist()
+            # print(final_boxes)
+            # print(final_labels)
+
+            matches1,matches2,matches3 = self.compare_labels_with_bboxes(final_labels, actual_labels, final_boxes, true_bboxes, image_name1, iou_threshold=0.5)
+            df = matches1 + matches2 + matches3
+            total_comparisions.append(df)
+
+        
+        data = pd.DataFrame(total_comparisions)
+        data.to_excel('df_total_comparisions.xlsx')
+
+
+
+    def calculate_iou(self,boxA, boxB):
+        # Determine the coordinates of the intersection rectangle
+        xA = max(boxA[0], boxB[0])
+        yA = max(boxA[1], boxB[1])
+        xB = min(boxA[2], boxB[2])
+        yB = min(boxA[3], boxB[3])
+
+        # Calculate the area of intersection
+        intersection_area = max(0, xB - xA) * max(0, yB - yA)
+
+        # Calculate the areas of both bounding boxes
+        boxA_area = (boxA[2] - boxA[0]) * (boxA[3] - boxA[1])
+        boxB_area = (boxB[2] - boxB[0]) * (boxB[3] - boxB[1])
+
+        # Calculate the area of union
+        union_area = boxA_area + boxB_area - intersection_area
+
+        # Compute the IoU
+        iou = intersection_area / float(union_area)
+
+        return iou
+
+    def compare_labels_with_bboxes(self,predicted_labels, true_labels, predicted_bboxes, true_bboxes,image_name, iou_threshold=0.5):
+        matches1 = []
+        matches2 = []
+        matches3 = []   
+
+        for pred_label, pred_box in zip(predicted_labels, predicted_bboxes):
+            best_iou = 0
+            value_checked = []
+            best_match = {'true_label': None, 'iou': 0, 'valid': False}
+            
+            if pred_label in true_labels:
+                extracted_labels = [(true_label, box) for true_label, box in zip(true_labels, true_bboxes) if true_label == pred_label]
+                # print(len(extracted_labels))
+                if len(extracted_labels) > 1: 
+                    for true_label, true_box in extracted_labels:
+                        # print(pred_box, true_box)
+                        iou = self.calculate_iou(pred_box, true_box)
+                        
+                        # if iou >= iou_threshold :
+                            # best_iou = iou
+                        best_match = {'image_name':image_name, 'true_label': true_label,'true_index': true_bboxes.index(true_box) , 'pred_label':pred_label,'pred_index':predicted_labels.index(pred_label), 'iou': iou, 'valid': iou >= iou_threshold}
+                        value_checked.append(best_match)
+                        # print(value_checked)
+                    
+
+                    if value_checked:                
+                        matches_with_positive_iou = [match for match in value_checked if match['iou'] > 0]                   
+                        if matches_with_positive_iou:
+                            matches1.extend(matches_with_positive_iou)
+                        else:
+                            # If no matches with positive IoU, optionally add a single match with iou == 0
+                            # Example: Add the first match or define another criterion
+                            # matches1.append(value_checked[0])
+                            unique_match_found = False
+                            for match in value_checked:
+                                if match['true_index'] not in [m['true_index'] for m in matches1]:
+                                    matches1.append(match)
+                                    unique_match_found = True
+                                    # break  # Stop after finding the first unique match
+                            
+                            # if not unique_match_found and value_checked:
+                            #     # Optionally, add the first entry if no unique match is found
+                            #     # This is a fallback and might not be necessary depending on your requirements
+                            #     matches1.append(value_checked[0])
+                    
+                else:
+                    for true_label, true_box in extracted_labels:
+                        # print(pred_box, true_box)
+                        iou = self.calculate_iou(pred_box, true_box)
+                        # print(true_label,true_box)
+                        
+                        # if iou >= iou_threshold :
+                            # best_iou = iou
+                        best_match = {'image_name':image_name,'true_label': true_label,'true_index': true_bboxes.index(true_box) , 'pred_label':pred_label,'pred_index':predicted_labels.index(pred_label), 'iou': iou, 'valid': iou >= iou_threshold}
+                    
+                        matches2.append(best_match)
+
+            else:
+                best_match = {'image_name':image_name,'true_label': 'nan','true_index': 'nan' , 'pred_label':pred_label,'pred_index':predicted_labels.index(pred_label), 'iou': 'nan', 'valid': False}
+                    
+                matches3.append(best_match)
+
+                # print
+            
+        
+        return matches1, matches2, matches3
+
+# # Example usage
+# # predicted_labels = [20, 31]
+# # true_labels = [20, 30]
+
+# # predicted_bboxes = [[10, 10, 50, 50], [20, 20, 60, 60]]  # Format: [x1, y1, x2, y2]
+# # true_bboxes = [[15, 15, 55, 55], [25, 25, 65, 65]]
+
+# predicted_labels = [15, 13,  5,  5, 20, 14, 29, 20, 28, 39, 41, 41, 24, 42,  1, 34, 19, 32,
+#         35, 17, 34, 32, 32, 25, 42,  1, 36,  8,  6,  8, 26, 37, 25, 40, 29, 33,
+#         29, 25, 21, 23,  2, 19]
+# true_labels = [28, 23, 17, 25, 21, 24, 23, 42, 20, 32, 15, 13, 25,  2, 37, 32, 29,  1,
+#         14, 35,  6, 12, 19, 35, 17, 34, 39,  2,  5, 26, 14, 29, 34, 37, 20, 29,
+#         36, 41, 22,  5, 41, 19, 30]
+
+# predicted_bboxes = [[1741.8683, 1776.8873, 1927.4122, 1926.2679],
+#         [2121.9651, 1764.1221, 2312.6865, 1919.7842],
+#         [1737.7671, 2329.4678, 1927.2339, 2484.5891],
+#         [1364.0033, 2713.1838, 1544.8967, 2866.2117],
+#         [1740.1046, 2526.1919, 1935.7391, 2679.1797],
+#         [ 226.0345, 2147.5447,  415.3085, 2295.5696],
+#         [2123.1970, 2525.3835, 2306.9609, 2680.0476],
+#         [ 984.9064, 1768.2930, 1176.4812, 1918.0055],
+#         [ 228.9326, 1578.0225,  417.6078, 1730.4572],
+#         [ 986.0679, 2334.7393, 1174.0839, 2484.9360],
+#         [1741.7905, 2715.6299, 1930.1272, 2859.8372],
+#         [ 605.5679, 2712.1472,  792.3783, 2864.3730],
+#         [2117.1648, 1582.8854, 2303.9685, 1727.2869],
+#         [ 603.9976, 1768.4097,  795.3846, 1919.0955],
+#         [2126.1785, 1948.6403, 2300.5417, 2106.2478],
+#         [ 983.5098, 2525.9563, 1175.1162, 2675.8394],
+#         [1745.1350, 2151.3311, 1935.2068, 2296.9551],
+#         [1359.8551, 1771.1188, 1550.5498, 1919.0995],
+#         [ 608.6517, 2147.4573,  803.5634, 2298.6648],
+#         [ 985.0970, 1584.1887, 1171.1813, 1729.0994],
+#         [ 612.5093, 2340.4219,  796.7136, 2488.9336],
+#         [1361.3049, 1958.7073, 1552.4812, 2103.9885],
+#         [1360.0422, 2140.0449, 1552.6970, 2295.3408],
+#         [ 230.2163, 1959.8611,  415.4686, 2106.6641],
+#         [ 231.4475, 2333.6272,  422.1381, 2482.5547],
+#         [ 232.6884, 2520.6987,  415.4825, 2668.9116],
+#         [ 234.8396, 2713.2612,  415.6931, 2872.5291],
+#         [2128.6321, 2146.8452, 2306.3770, 2298.1614],
+#         [ 990.7601, 2715.1755, 1174.8783, 2859.1306],
+#         [ 609.9813, 1955.9154,  792.9372, 2105.2075],
+#         [2116.4497, 2337.1086, 2313.3926, 2486.4700],
+#         [2117.6096, 2712.6660, 2313.7302, 2862.8044],
+#         [1742.8850, 1586.9409, 1930.5414, 1731.0399],
+#         [ 228.0908, 1774.1013,  416.1783, 1914.5491],
+#         [ 603.0210, 2531.1277,  796.0768, 2672.0564],
+#         [ 981.9566, 1962.7025, 1181.3318, 2104.0632],
+#         [1742.6692, 1961.8027, 1934.6727, 2107.6111],
+#         [ 995.6221, 2146.4143, 1180.3810, 2294.8118],
+#         [1357.7737, 1579.2455, 1548.7361, 1722.2889],
+#         [ 609.3972, 1573.6178,  800.0624, 1731.6934],
+#         [1361.2094, 2341.0576, 1556.0248, 2483.8396],
+#         [1360.8202, 2521.5620, 1566.1335, 2670.2874]]
+
+# true_bboxes = [[ 230., 1580.,  419., 1729.],
+#         [ 608., 1580.,  797., 1729.],
+#         [ 986., 1580., 1175., 1729.],
+#         [1364., 1580., 1553., 1729.],
+#         [1742., 1580., 1931., 1729.],
+#         [2120., 1580., 2309., 1729.],
+#         [ 230., 1769.,  419., 1918.],
+#         [ 608., 1769.,  797., 1918.],
+#         [ 986., 1769., 1175., 1918.],
+#         [1364., 1769., 1553., 1918.],
+#         [1742., 1769., 1931., 1918.],
+#         [2120., 1769., 2309., 1918.],
+#         [ 230., 1958.,  419., 2107.],
+#         [ 608., 1958.,  797., 2107.],
+#         [ 986., 1958., 1175., 2107.],
+#         [1364., 1958., 1553., 2107.],
+#         [1742., 1958., 1931., 2107.],
+#         [2120., 1958., 2309., 2107.],
+#         [ 230., 2147.,  419., 2296.],
+#         [ 608., 2147.,  797., 2296.],
+#         [ 986., 2147., 1175., 2296.],
+#         [1364., 2147., 1553., 2296.],
+#         [1742., 2147., 1931., 2296.],
+#         [2120., 2147., 2309., 2296.],
+#         [ 230., 2336.,  419., 2485.],
+#         [ 608., 2336.,  797., 2485.],
+#         [ 986., 2336., 1175., 2485.],
+#         [1364., 2336., 1553., 2485.],
+#         [1742., 2336., 1931., 2485.],
+#         [2120., 2336., 2309., 2485.],
+#         [ 230., 2525.,  419., 2674.],
+#         [ 608., 2525.,  797., 2674.],
+#         [ 986., 2525., 1175., 2674.],
+#         [1364., 2525., 1553., 2674.],
+#         [1742., 2525., 1931., 2674.],
+#         [2120., 2525., 2309., 2674.],
+#         [ 230., 2714.,  419., 2863.],
+#         [ 608., 2714.,  797., 2863.],
+#         [ 986., 2714., 1175., 2863.],
+#         [1364., 2714., 1553., 2863.],
+#         [1742., 2714., 1931., 2863.],
+#         [2120., 2714., 2309., 2863.],
+#         [1081., 2162., 1193., 2285.]]
+
+# # matches1,matches2,matches3 = compare_labels_with_bboxes(predicted_labels, true_labels, predicted_bboxes, true_bboxes)
+
+# # print(matches)
+
+# # df3 = pd.
+
+# # df = pd.concat(df1[df1['iou']>0],df2)
+# # print(df)
+# # print(df1[df1['iou']>0])
+# # print(df2)
+# # # df = matches1 + matches2 + matches3
+# # sorted_matches1 = sorted(matches1, key=lambda x: x['true_index'])
+# # sorted_matches2 = sorted(matches1, key=lambda x: x['true_index'])
+# # df = sorted(df, key=lambda x: x['true_index'])
+# # # for match in sorted_matches1:
+# # #     print(match)
+
+# # for match in matches3:
+# #     print(match)
+    
+
+
+# # Extract elements from list2 where the corresponding element in list1 is in filter_list
+# # extracted_elements = [(elem,check) for elem, check in zip(list2, list1) if check in filter_list]
+# # extracted_elements = [(true_label, box, true_labels.index(true_label)) for true_label, box in zip(true_labels, true_bboxes) if true_label == 20]
+# # print(extracted_elements)
+# # for data,value in extracted_elements:
+# #     print(data,value)
+# #     true_labels.index(data) 
+
+# import pandas as pd
+
+# df = pd.read_excel('df_total_comparisions.xlsx')
+# data = pd.DataFrame(df)
+
+# # print(data[0])
+# for val in data[0:]:   
+#     print(val)

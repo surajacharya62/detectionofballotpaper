@@ -2,8 +2,8 @@ import os
 import cv2
 
 
-file_path = "../../../datasets1/nepalka_lagi_nepali_party/train"
-file_to_save = "../../../datasets1/nepalka_lagi_nepali_party/train1/" 
+file_path = "../../../datasets_symbol_train/pichadbarga_nisadh_janjati_party/train"
+file_to_save = "../../../datasets_symbol_train/pichadbarga_nisadh_janjati_party/train1/" 
 
 list_of_images = []
 # images = os.listdir(file_path)
@@ -24,6 +24,6 @@ else:
 #     print(filename)
         
 for i, image in enumerate(list_of_images, 1):
-    cv2.imwrite(file_to_save + f'conch_{i:04}.png',image) 
+    cv2.imwrite(file_to_save + f'turtle_{i:04}.png',image) 
 
 

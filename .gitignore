@@ -1,0 +1,11 @@
+modules/outputdir
+modules/real_ballot
+modules/datasets_symbol_train
+modules/datasets_symbol_val
+modules/trained_models
+modules/training_set
+modules/testing_set
+modules/validation_set
+modules/visualize_predicted
+modules/yolodata
+modules/output
