@@ -31,17 +31,17 @@ import json
 # # #predict----------------------------
 
 model = YOLO('./runs/detect/train3/weights/best.pt')
-results = model('../../../testing_set/set4/test/image_0001.jpg',save_txt=None)
+results = model('../../../testing_set/set4/test/',save_txt=None)
 # Process results list
-for result in results:
-    boxes = result.boxes
-    masks = result.masks  # Masks object for segmentation masks outputs
-    keypoints = result.keypoints  # Keypoints object for pose outputs
-    scores = result.probs  # Probs object for classification outputs   
-    labels = result.names    
-    result.show()  # display to screen    
-    scores = result.probs  # Assuming this gives you a list of probabilities
-    result.save(filename='image_0001.jpg')
+# for result in results:
+#     boxes = result.boxes
+#     masks = result.masks  # Masks object for segmentation masks outputs
+#     keypoints = result.keypoints  # Keypoints object for pose outputs
+#     scores = result.probs  # Probs object for classification outputs   
+#     labels = result.names    
+#     result.show()  # display to screen    
+#     scores = result.probs  # Assuming this gives you a list of probabilities
+#     result.save(filename='image_0001.jpg')
     # Find the index of the max probability to get the predicted class index
         # print(dir(result))
 # result = results.tojson()
@@ -103,23 +103,23 @@ for result in results:
 # df = pd.concat(labels)
 # df.to_csv('predicted_labels.csv', index=False)
 
-# detection_list = []  # Changed variable name from 'list' to 'detection_list'
-# for result in results:
-#     boxes = result.boxes.cpu().numpy()
-#     for box in boxes:
-#         cls = int(box.cls[0])
-#         path = result.path
-#         class_name = model.names[cls]
-#         conf = int(box.conf[0] * 100)
-#         bx = box.xywh.tolist()
-#         df = pd.DataFrame({'image_name': path.split("\\")[15],  # Changed index 15 to -1 for general case
-#                            'label': class_name,
-#                            'class_id': cls,
-#                            'score': conf / 100,
-#                            'box_coord': [bx]})  # Ensuring bx is inside a list
-#         detection_list.append(df)
+detection_list = []  # Changed variable name from 'list' to 'detection_list'
+for result in results:
+    boxes = result.boxes.cpu().numpy()
+    for box in boxes:
+        cls = int(box.cls[0])
+        path = result.path
+        class_name = model.names[cls]
+        conf = int(box.conf[0] * 100)
+        bx = box.xywh.tolist()
+        df = pd.DataFrame({'image_name': path.split("\\")[15],  # Changed index 15 to -1 for general case
+                           'label': class_name,
+                           'class_id': cls,
+                           'score': conf / 100,
+                           'box_coord': [bx]})  # Ensuring bx is inside a list
+        detection_list.append(df)
 
-# # Concatenate all DataFrames in the list into a single DataFrame
-# df = pd.concat(detection_list)
-# # Save the concatenated DataFrame to a CSV file
-# df.to_csv('yolo_predicted_labels.csv', index=False)
+# Concatenate all DataFrames in the list into a single DataFrame
+df = pd.concat(detection_list)
+# Save the concatenated DataFrame to a CSV file
+df.to_csv('../../../yolo_files/yolo_predicted_labels.csv', index=False)

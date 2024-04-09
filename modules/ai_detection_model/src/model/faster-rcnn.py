@@ -123,7 +123,7 @@ def collate_fn(batch):
 
 image_path = '../../../training_set/set6/'
 train_path = 'train' 
-test_image_path = '../../../testing_set/set4/'
+test_image_path = '../../../testing_set/set5/'
 test_path = 'test'
 df = pd.read_csv(os.path.join('../../../training_set/set6/', 'annotations.csv'))
 label_to_id = {label: i for i, label in enumerate(df['label'].unique())}
