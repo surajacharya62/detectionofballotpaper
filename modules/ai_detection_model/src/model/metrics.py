@@ -82,7 +82,7 @@ class Metrics():
         plt.show()
 
 
-    def generate_separate_precision_recall_curves(self,df):
+    def generate_separate_precision_recall_curves(self, df):
         unique_classes = df['class'].unique()
         n_classes = 43
         
@@ -140,15 +140,13 @@ class Metrics():
     def call_metrics(self):
         
         f1_micro_data = pd.read_excel('./infer_df.xlsx')   
-        df = pd.DataFrame(f1_micro_data)
-      
+        df = pd.DataFrame(f1_micro_data)     
 
         ##-----------------Precision Recall Curve Visualization
         # # obje.generate_precision_recall_curve(df, 'heart')
         self.generate_separate_precision_recall_curves(df)
 
         # =CONCAT("\hline ",TEXT(B2,"0.00")," & ",TEXT(G2,"0.00")," & ", TEXT(H2,"0.00")," & ",TEXT(I2,"0.00")," & ",TEXT(J2,"0.00")," \\")
-
 
 
         # # -------------------------------Calculate Macro F1 Score

@@ -1,50 +1,111 @@
 from ultralytics import YOLO
 import os
-root_path = '../../../'
 import pandas as pd
-import os
 import csv
 import json
 
-# config_path = os.path.join(root_path, "config.yaml")
-# if not os.path.exists(config_path):
-#     raise ValueError(f"The specified config path does not exist: {config_path}")
+from visualize.visualize_yolo import YoloVisualize
+from helper_yolo.yolo_normalize import YoloNormalize
+from model.metrics_yolo import YoloMetrics
 
-# # Load a model
-# model = YOLO("yolov8n.yaml")  # build a new model from scratch
-# model = YOLO("yolov8n.pt")  # load a pretrained model (recommended for training)
-# model = YOLO('yolov8n.yaml').load('yolov8n.pt')
-# # Training the model
-# results = model.train(data=os.path.join(root_path,"config.yaml"), epochs=10)  # train the model
+obj_visualize = YoloVisualize()
+obj_normalize = YoloNormalize()
+obj_metrics = YoloMetrics()
 
-# #validation
-# metrics = model.val()  # evaluate model performance on the validation set
-# metrics.box.map    # map50-95
-# metrics.box.map50  # map50
-# metrics.box.map75  # map75
-# metrics.box.maps   # a list contains map50-95 of each category
+root_path = '../../../'
 
-# # = CONCAT("\hline ",B2, " & ",TEXT(G2,"0.00")," & ",TEXT(H2,"0.00")," & \\")
-# # Exporting the model
-# model.export(format='onnx')
 
-# # #predict----------------------------
+class ModelYolo():
 
-model = YOLO('./runs/detect/train3/weights/best.pt')
-results = model('../../../testing_set/set4/test/',save_txt=None)
-# Process results list
-# for result in results:
-#     boxes = result.boxes
-#     masks = result.masks  # Masks object for segmentation masks outputs
-#     keypoints = result.keypoints  # Keypoints object for pose outputs
-#     scores = result.probs  # Probs object for classification outputs   
-#     labels = result.names    
-#     result.show()  # display to screen    
-#     scores = result.probs  # Assuming this gives you a list of probabilities
-#     result.save(filename='image_0001.jpg')
-    # Find the index of the max probability to get the predicted class index
-        # print(dir(result))
-# result = results.tojson()
+    # def train_model():
+    #     # config_path = os.path.join(root_path, "config.yaml")
+    #     # if not os.path.exists(config_path):
+    #     #     raise ValueError(f"The specified config path does not exist: {config_path}")
+
+    #     # # Load a model
+    #     # model = YOLO("yolov8n.yaml")  # build a new model from scratch
+    #     # model = YOLO("yolov8n.pt")  # load a pretrained model (recommended for training)
+    #     # model = YOLO('yolov8n.yaml').load('yolov8n.pt')
+    #     # # Training the model
+    #     # results = model.train(data=os.path.join(root_path,"config.yaml"), epochs=10)  # train the model
+
+    #     # #validation
+    #     # metrics = model.val()  # evaluate model performance on the validation set
+    #     # metrics.box.map    # map50-95
+    #     # metrics.box.map50  # map50
+    #     # metrics.box.map75  # map75
+    #     # metrics.box.maps   # a list contains map50-95 of each category
+
+    #     # # = CONCAT("\hline ",B2, " & ",TEXT(G2,"0.00")," & ",TEXT(H2,"0.00")," & \\")
+    #     # # Exporting the model
+    #     # model.export(format='onnx')
+
+    def predict(self, model_path, test_set, pred_labels_save_path):
+        
+        model = YOLO(model_path, test_set)
+        results = model(test_set, save_txt=None)
+        # Process results list
+        # for result in results:
+        #     boxes = result.boxes
+        #     masks = result.masks  # Masks object for segmentation masks outputs
+        #     keypoints = result.keypoints  # Keypoints object for pose outputs
+        #     scores = result.probs  # Probs object for classification outputs   
+        #     labels = result.names    
+        #     result.show()  # display to screen    
+        #     scores = result.probs  # Assuming this gives you a list of probabilities
+        #     result.save(filename='image_0001.jpg')
+        #     Find the index of the max probability to get the predicted class index
+        #         print(dir(result))
+        # result = results.tojson()
+
+        detection_list = []  # Changed variable name from 'list' to 'detection_list'
+        for result in results:
+            boxes = result.boxes.cpu().numpy()
+            for box in boxes:
+                cls = int(box.cls[0])
+                path = result.path
+                class_name = model.names[cls]
+                conf = int(box.conf[0] * 100)
+                bx = box.xywh.tolist()
+                df = pd.DataFrame({'image_name': path.split("\\")[15],  # Changed index 15 to -1 for general case
+                                'label': class_name,
+                                'class_id': cls,
+                                'score': conf / 100,
+                                'box_coord': [bx]})  # Ensuring bx is inside a list
+                detection_list.append(df)
+        # Concatenate all DataFrames in the list into a single DataFrame
+        df = pd.concat(detection_list)
+        file_name = 'yolo_predicted_labels.csv' 
+        # Save the concatenated DataFrame to a CSV file        
+        df.to_csv(os.path.join(pred_labels_save_path, file_name), index=False)
+
+
+model_path = './runs/detect/train3/weights/best.pt'
+test_set = '../../../testing_set/set4/test/' 
+pred_labels_path = '../../../yolo_files/'
+
+#------------------------------For prediction-------------------------------------
+obj_model = ModelYolo()
+obj_model.predict(model_path, test_set, pred_labels_path)
+
+#----------For visualizing the predictions-----------------------------------------
+obj_visualize.visualize_test_images(test_set, pred_labels_path)
+
+#--------For normalizing the predicted labels-----------------------
+output_save_path = '../../../yolo_files/'
+true_labels_path = '../../../testing_set/set4/yolov8'
+obj_normalize.normalize(pred_labels_path, output_save_path)
+obj_normalize.objeval_format_true_labels(true_labels_path, output_save_path)
+obj_normalize.objeval_format_pred_labels(pred_labels_path)
+
+
+#---------------For metrics----------------------------------------------------
+
+obj_metrics.metrics(pred_labels_path)
+obj_metrics.generate_separate_precision_recall_curves(pred_labels_path)
+
+
+
 
 # with open('detection_results.csv', 'w', newline='') as file:
 #     writer = csv.writer(file)
@@ -103,23 +164,4 @@ results = model('../../../testing_set/set4/test/',save_txt=None)
 # df = pd.concat(labels)
 # df.to_csv('predicted_labels.csv', index=False)
 
-detection_list = []  # Changed variable name from 'list' to 'detection_list'
-for result in results:
-    boxes = result.boxes.cpu().numpy()
-    for box in boxes:
-        cls = int(box.cls[0])
-        path = result.path
-        class_name = model.names[cls]
-        conf = int(box.conf[0] * 100)
-        bx = box.xywh.tolist()
-        df = pd.DataFrame({'image_name': path.split("\\")[15],  # Changed index 15 to -1 for general case
-                           'label': class_name,
-                           'class_id': cls,
-                           'score': conf / 100,
-                           'box_coord': [bx]})  # Ensuring bx is inside a list
-        detection_list.append(df)
 
-# Concatenate all DataFrames in the list into a single DataFrame
-df = pd.concat(detection_list)
-# Save the concatenated DataFrame to a CSV file
-df.to_csv('../../../yolo_files/yolo_predicted_labels.csv', index=False)

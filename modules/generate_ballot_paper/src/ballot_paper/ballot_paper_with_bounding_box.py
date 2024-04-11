@@ -413,7 +413,7 @@ def create_stamped_ballots(symbols, stamp_path, rows, columns, candidates,
 
 
 # symbols_train_path = '../../../datasets_symbol/'
-symbols_test_path = '../../../validation_folder1' 
+symbols_test_path = '../../../test_folder' 
 # symbols = load_symbols(symbols_train_path)
 # print(len(symbols))
 
@@ -433,11 +433,11 @@ print("test")
 
 header = ['image_id','label', 'x1', 'y1', 'x2', 'y2']
 import csv
-with open('../../../validation_set/set4/annotations.csv', 'w', newline='') as file:
+with open('../../../testing_set/set5/annotations.csv', 'w', newline='') as file:
     writer = csv.writer(file) 
     writer.writerow(header)  # Write the header 
 
-    for i in range(1, 200):
+    for i in range(1, 100):
         
         symbols = load_symbols1(symbols_test_path)
         print(len(symbols))
@@ -448,7 +448,7 @@ with open('../../../validation_set/set4/annotations.csv', 'w', newline='') as fi
                                                                 margins=(300, 300, 200, 200))
 
         
-        valid_ballot.save(f'../../../validation_set/set4/val/image_{i:04}.jpg')
+        valid_ballot.save(f'../../../testing_set/set5/test/image_{i:04}.jpg')
         # invalid_ballot.save(f'../../../datasets/ballot_datasets/invalid/invalid_{i:04}.jpg')
 
         for symbol_name, *bbox in annotations:
