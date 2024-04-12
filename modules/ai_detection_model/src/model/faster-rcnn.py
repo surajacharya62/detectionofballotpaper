@@ -74,7 +74,7 @@ class ElectoralSymbolTrainDataset(Dataset):
             # tensor_img = self.transforms(img)
             img = self.transforms(img)          
 
-        return img, image_id, img_name
+        return img, image_id, img_name , target
 
     def __len__(self):
         return len(self.imgs_list)
@@ -143,7 +143,7 @@ label_to_id = {label: i for i, label in enumerate(sorted_labels)}
 
 test_set = ElectoralSymbolTrainDataset(test_image_path, test_path, label_to_id, get_transform(True))
 test_loader = DataLoader(test_set, batch_size=4, shuffle=False)
-
+# print(test_set[0])
 
 ######---------------------------------------------- Model Preparation
 def get_object_detection_model(num_classes):
@@ -163,7 +163,7 @@ device = torch.device('cuda') if torch.cuda.is_available() else torch.device('cp
 
 
 
-# ##--------------------------------------------Testing the model
+###--------------------------------------------Testing the model
 
 torch.cuda.empty_cache()
 start_time = time.time()
@@ -171,7 +171,7 @@ model2 = get_object_detection_model(num_classes)
 model2.load_state_dict(torch.load('../../../trained_models/trained_model_fasterrcnn_new.pth', map_location= torch.device('cpu')))
 model2.eval()
 predictions = []
-for images, imageids, imagenames in test_loader:  # No labels if your test set is unlabeled
+for images, imageids, imagenames, target in test_loader:  # No labels if your test set is unlabeled
     image = images.to(device)  # Move images to the device where your model is
     with torch.no_grad():  # No gradients needed
         output = model2(image)
@@ -183,7 +183,20 @@ for images, imageids, imagenames in test_loader:  # No labels if your test set i
 
 
 
-#------------------------------------------------For Metrics Calculation
+# ----------------------------------------------For Visualizing The Predictions
+
+# obj_visualize = VisualizePrediction()
+# obj_visualize.visualize_predicted_images(test_set, predictions, label_to_id)
+# # obj_visualize.visualize_train_set(train_set[1], label_to_id)
+
+
+# #-----------------------------------------------For Vote Validation Visualization
+# obj_vote_val = ValidateVote()
+# obj_vote_val.predicted_images(test_set, predictions, label_to_id)
+
+
+
+# #------------------------------------------------For Metrics Calculation
 # dataframe_predicted_data = []
 # for data in predictions:  # Loop through each batch
     
@@ -208,31 +221,19 @@ for images, imageids, imagenames in test_loader:  # No labels if your test set i
 #         'labels': final_labels
 #     })
 
-
-# true_labels_path = '../../../testing_set/set4/annotations.csv'
+# metrics_file_path = '../../../faster_rcnn_files/'
+# true_labels_path = '../../../testing_set/set5/annotations.csv'
 # obj = Metrics()
-# obj.metrics(dataframe_predicted_data, true_labels_path, label_to_id)
-# obj.call_metrics()
+# obj.metrics(dataframe_predicted_data, true_labels_path, label_to_id, metrics_file_path)
+# obj.call_metrics(metrics_file_path)
 
       
 
-#-----------------------------------------------For Vote Validation Visualization
-obj_vote_val = ValidateVote()
-obj_vote_val.predicted_images(test_set, predictions, label_to_id)
 
-
-#----------------------------------------------For Visualizing The Predictions
-# for test in test_set:   
-#     print(test[0].shape)
-    # break
-
-# obj_visualize = VisualizePrediction()
-# obj_visualize.visualize_predicted_images(test_set, predictions, label_to_id)
-# # obj_visualize.visualize_train_set(train_set[1], label_to_id)
 
 
 #----------------------------------For Bounding Box comparision(Predicted Labels with Ground Truth labels)
-# object_compare.labels(test_set, predictions)
+object_compare.labels(test_set, predictions, label_to_id)
 
 
 # end_time = time.time()

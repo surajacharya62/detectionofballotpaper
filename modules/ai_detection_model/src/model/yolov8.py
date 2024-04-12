@@ -84,12 +84,15 @@ model_path = './runs/detect/train3/weights/best.pt'
 test_set = '../../../testing_set/set4/test/' 
 pred_labels_path = '../../../yolo_files/'
 
+
 #------------------------------For prediction-------------------------------------
 obj_model = ModelYolo()
 obj_model.predict(model_path, test_set, pred_labels_path)
 
+
 #----------For visualizing the predictions-----------------------------------------
 obj_visualize.visualize_test_images(test_set, pred_labels_path)
+
 
 #--------For normalizing the predicted labels-----------------------
 output_save_path = '../../../yolo_files/'
@@ -103,6 +106,7 @@ obj_normalize.objeval_format_pred_labels(pred_labels_path)
 
 obj_metrics.metrics(pred_labels_path)
 obj_metrics.generate_separate_precision_recall_curves(pred_labels_path)
+obj_metrics.call_metrics(pred_labels_path)
 
 
 

@@ -199,7 +199,7 @@ class ValidateVote():
         """Calculate the horizontal and vertical distances between the stamp and symbol."""
         horizontal_distance = max(0, stamp_box[0] - symbol_box[2]) 
          # Stamp to the right of the symbol
-        print(stamp_box[0],symbol_box[2])
+        # print(stamp_box[0],symbol_box[2])
         vertical_distance = 0  # Default to 0 if vertically aligned or overlapping
         if stamp_box[3] < symbol_box[1]: 
              # Stamp above symbol
@@ -223,7 +223,7 @@ class ValidateVote():
                 else:
                     symbol_box = symbol_box.cpu().numpy()
                     horizontal_distance, vertical_distance = self.calculate_edge_distance(stamp_box, symbol_box)
-                    print(horizontal_distance)
+                    # print(horizontal_distance)
                     
                     # For simplicity, let's focus on horizontal distance
                     if horizontal_distance < closest_distance:
@@ -232,7 +232,7 @@ class ValidateVote():
                         closest_symbol_box = symbol_box
 
         adjusted_proximity_threshold = 378 - 189  # Example adjustment
-        print(closest_distance)
+        
         if closest_distance <= adjusted_proximity_threshold:
             print("True")
             return True, closest_symbol_label, closest_symbol_box

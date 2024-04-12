@@ -91,3 +91,37 @@ class YoloMetrics():
         plt.savefig(f'../../../outputdir/YoloMetrics.png', bbox_inches='tight', pad_inches=0, dpi=300)  
         # plt.subplots_adjust(bottom=0.3) # Adjust subplots to fit in the figure area
         # plt.show()
+    
+    def call_metrics(self, file_path):
+        
+        f1_micro_data = pd.read_excel(os.path.join(file_path, 'infer_df.xlsx')) 
+        df = pd.DataFrame(f1_micro_data)     
+
+        ##-----------------Precision Recall Curve Visualization
+        # # obje.generate_precision_recall_curve(df, 'heart')
+        self.generate_separate_precision_recall_curves(df)
+
+        # =CONCAT("\hline ",TEXT(B2,"0.00")," & ",TEXT(G2,"0.00")," & ", TEXT(H2,"0.00")," & ",TEXT(I2,"0.00")," & ",TEXT(J2,"0.00")," \\")
+
+
+        # # -------------------------------Calculate Macro F1 Score
+        data_summary = pd.read_excel(os.path.join(file_path, 'class_summary_df.xlsx'))   
+        df_summary = pd.DataFrame(data_summary)
+        df_summary['F1'] = 2 * (df_summary['Precision'] * df_summary['Recall']) / (df_summary['Precision'] + df_summary['Recall'])
+
+        macro_f1_score = df_summary['F1'].mean()
+        print("Macro F1 Score:", macro_f1_score)
+
+
+        # #-------------------------------Calculating micro F1 Score
+        total_TP = df['TP'].sum()
+        total_FP = df['FP'].sum()
+        total_FN = df['FN'].sum()
+
+        precision_micro = total_TP / (total_TP + total_FP) if (total_TP + total_FP) > 0 else 0
+        recall_micro = total_TP / (total_TP + total_FN) if (total_TP + total_FN) > 0 else 0
+        f1_micro = 2 * (precision_micro * recall_micro) / (precision_micro + recall_micro) if (precision_micro + recall_micro) > 0 else 0
+
+        print(f"Micro-average Precision: {precision_micro}")
+        print(f"Micro-average Recall: {recall_micro}")
+        print(f"Micro F1 Score: {f1_micro}")

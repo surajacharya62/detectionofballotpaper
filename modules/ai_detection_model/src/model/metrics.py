@@ -1,19 +1,19 @@
 
 from objectdetect.objdetecteval.metrics import image_metrics as im, coco_metrics as cm
 import pandas as pd
-
 import numpy as np
 import matplotlib.pyplot as plt
+import os
 
 class Metrics():
     
-    def metrics(self, prediction_labels, true_labels_path, label_to_id):
+    def metrics(self, prediction_labels, true_labels_path, label_to_id, files_path):
         pred_label = []
         true_labels = pd.read_csv(true_labels_path)
         true_labels = true_labels.rename(columns={'image_id':'image_name','x1':'xmin','y1':'ymin','x2':'xmax','y2':'ymax'})
         
         for data in prediction_labels:
-            id = data['imageid'] # Use .item() to get the value as a standard Python scalar
+            id = data['imageid'].cpu().numpy() # Use .item() to get the value as a standard Python scalar
             boxes = data['boxes'].cpu().numpy()
             labels = data['labels'].cpu().numpy()
             scores = data['scores'].cpu().numpy()
@@ -34,20 +34,29 @@ class Metrics():
 
         inv_label = {v:k for k,v in label_to_id.items()}            
         preds_df = pd.DataFrame(pred_label)
-        preds_df['label']= preds_df['label'].replace(inv_label)  
-        preds_df.to_excel('preds_df.xlsx')
+        preds_df['category_id'] = preds_df['label']
+        preds_df['label'] = preds_df['label'].replace(inv_label)  
+        preds_df.to_excel(os.path.join(files_path, 'preds_df.xlsx'))
+
 
         true_labels_df = pd.DataFrame(true_labels)
-        true_labels_df.to_excel('true_labels_df.xlsx')        
         
-        infer_df = im.get_inference_metrics_from_df(preds_df, true_labels_df)
-        infer_df.to_excel('infer_df.xlsx')
+        true_labels_df['category_id'] = true_labels_df['label'].replace(label_to_id) 
+        true_labels_df.to_excel(os.path.join(files_path, 'true_labels_df.xlsx'))        
+        
+        pred = pd.read_excel(os.path.join(files_path, 'preds_df.xlsx'))
+        predd = pd.DataFrame(pred)
+        true = pd.read_excel(os.path.join(files_path, 'true_labels_df.xlsx'))
+        trued = pd.DataFrame(true)
+
+        infer_df = im.get_inference_metrics_from_df(predd, trued)
+        infer_df.to_excel(os.path.join(files_path, 'infer_df.xlsx'))
 
         class_summary_df = im.summarise_inference_metrics(infer_df)
-        class_summary_df.to_excel('class_summary_df.xlsx')
+        class_summary_df.to_excel(os.path.join(files_path, 'class_summary_df.xlsx'))
    
     
-    def generate_precision_recall_curve(self,df, class_name):
+    def generate_precision_recall_curve(self, df, class_name):
         # Filter DataFrame for the current class
         class_df = df[df['class'] == class_name].copy()
         
@@ -134,12 +143,12 @@ class Metrics():
         plt.tight_layout()
         plt.savefig(f'../../../outputdir/FasterRCNNMetrics.png', bbox_inches='tight', pad_inches=0, dpi=300)  
         # plt.subplots_adjust(bottom=0.3) # Adjust subplots to fit in the figure area
-        plt.show()
+        # plt.show()
 
 
-    def call_metrics(self):
+    def call_metrics(self, file_path):
         
-        f1_micro_data = pd.read_excel('./infer_df.xlsx')   
+        f1_micro_data = pd.read_excel(os.path.join(file_path, 'infer_df.xlsx')) 
         df = pd.DataFrame(f1_micro_data)     
 
         ##-----------------Precision Recall Curve Visualization
@@ -150,7 +159,7 @@ class Metrics():
 
 
         # # -------------------------------Calculate Macro F1 Score
-        data_summary = pd.read_excel('./class_summary_df.xlsx')   
+        data_summary = pd.read_excel(os.path.join(file_path, 'class_summary_df.xlsx'))   
         df_summary = pd.DataFrame(data_summary)
         df_summary['F1'] = 2 * (df_summary['Precision'] * df_summary['Recall']) / (df_summary['Precision'] + df_summary['Recall'])
 
