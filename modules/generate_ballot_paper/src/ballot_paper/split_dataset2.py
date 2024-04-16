@@ -52,9 +52,7 @@ class SplitTrainTestValidation():
                             validation_folder='validation_folder1',
                             test_folder='test_folder1'
                          )
-
-         
-
+  
       
     def save_images(self,train_images, 
                             val_images, 
@@ -64,8 +62,8 @@ class SplitTrainTestValidation():
                             validation_folder,
                             test_folder):
     
-        train_path = '../../../train_folder1/'  
-        if not os.path.exists( '../../../train_folder1/' + folder_name):
+        train_path = '../../../train_folder/'  
+        if not os.path.exists( '../../../train_folder/' + folder_name):
             os.makedirs( train_path + folder_name)
         random.shuffle(train_images)
 
@@ -79,8 +77,8 @@ class SplitTrainTestValidation():
             # Copy the image to the target folder
             # shutil.copy(image_path, destination_path)
         
-        validation_path = '../../../validation_folder1/'  
-        if not os.path.exists('../../../validation_folder1/' + folder_name):
+        validation_path = '../../../validation_folder/'  
+        if not os.path.exists('../../../validation_folder/' + folder_name):
             os.makedirs( validation_path + folder_name)
         random.shuffle(val_images)
 
@@ -94,8 +92,8 @@ class SplitTrainTestValidation():
             # Copy the image to the target folder
             # shutil.copy(image_path, destination_path)
         
-        test_path = '../../../test_folder1/'  
-        if not os.path.exists( '../../../test_folder1/' + folder_name):
+        test_path = '../../../test_folder/'  
+        if not os.path.exists( '../../../test_folder/' + folder_name):
             os.makedirs( test_path + folder_name)
         random.shuffle(test_images)
 

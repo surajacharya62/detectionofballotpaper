@@ -123,9 +123,9 @@ def collate_fn(batch):
 
 image_path = '../../../training_set/set6/'
 train_path = 'train' 
-test_image_path = '../../../testing_set/set5/'
+test_image_path = '../../../testing_set/set6/'
 test_path = 'test'
-df = pd.read_csv(os.path.join('../../../training_set/set6/', 'annotations.csv'))
+df = pd.read_csv(os.path.join('../../../testing_set/set6/', 'annotations.csv'))
 label_to_id = {label: i for i, label in enumerate(df['label'].unique())}
 
 sorted_labels = sorted(label_to_id)
@@ -165,29 +165,29 @@ device = torch.device('cuda') if torch.cuda.is_available() else torch.device('cp
 
 ###--------------------------------------------Testing the model
 
-torch.cuda.empty_cache()
-start_time = time.time()
-model2 = get_object_detection_model(num_classes)
-model2.load_state_dict(torch.load('../../../trained_models/trained_model_fasterrcnn_new.pth', map_location= torch.device('cpu')))
-model2.eval()
-predictions = []
-for images, imageids, imagenames, target in test_loader:  # No labels if your test set is unlabeled
-    image = images.to(device)  # Move images to the device where your model is
-    with torch.no_grad():  # No gradients needed
-        output = model2(image)
+# torch.cuda.empty_cache()
+# start_time = time.time()
+# model2 = get_object_detection_model(num_classes)
+# model2.load_state_dict(torch.load('../../../trained_models/trained_model_fasterrcnn_new.pth', map_location= torch.device('cpu')))
+# model2.eval()
+# predictions = []
+# for images, imageids, imagenames, target in test_loader:  # No labels if your test set is unlabeled
+#     image = images.to(device)  # Move images to the device where your model is
+#     with torch.no_grad():  # No gradients needed
+#         output = model2(image)
 
-        for output, imageid, imagename in zip(output, imageids, imagenames):
-            # Structure each prediction as a tuple
-            prediction = (output, imageid, imagename)
-            predictions.append(prediction) 
+#         for output, imageid, imagename in zip(output, imageids, imagenames):
+#             # Structure each prediction as a tuple
+#             prediction = (output, imageid, imagename)
+#             predictions.append(prediction) 
 
 
 
 # ----------------------------------------------For Visualizing The Predictions
 
-# obj_visualize = VisualizePrediction()
+obj_visualize = VisualizePrediction()
 # obj_visualize.visualize_predicted_images(test_set, predictions, label_to_id)
-# # obj_visualize.visualize_train_set(train_set[1], label_to_id)
+obj_visualize.visualize_train_set(test_set[1], label_to_id)
 
 
 # #-----------------------------------------------For Vote Validation Visualization
@@ -233,7 +233,7 @@ for images, imageids, imagenames, target in test_loader:  # No labels if your te
 
 
 #----------------------------------For Bounding Box comparision(Predicted Labels with Ground Truth labels)
-object_compare.labels(test_set, predictions, label_to_id)
+# object_compare.labels(test_set, predictions, label_to_id)
 
 
 # end_time = time.time()

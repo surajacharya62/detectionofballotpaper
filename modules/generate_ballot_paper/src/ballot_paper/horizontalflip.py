@@ -22,9 +22,44 @@ def flip_image_horizontally_torchvision(image_path):
     # flipped_image.save(save_path)
     return flipped_image
 
+
+def flip_image_vertically_torchvision(image_path):
+    # Define the horizontal flipping transform
+    transform = transforms.Compose([
+        transforms.RandomVerticalFlip(p=1)  # Set probability to 1 to always flip
+    ])    
+    
+    # Open the image
+    image = Image.open(image_path)
+    # flipped_image = image.transpose(Image.FLIP_LEFT_RIGHT)
+    
+    # Apply the transform
+    flipped_image = transform(image)
+    # flipped_image.show()
+    # Save the flipped image to a new file
+    # flipped_image.save(save_path)
+    return flipped_image
+
+
+
+def random_rotate_image(image_path):
+    # Define the transform for random rotation
+    transform = transforms.Compose([
+        transforms.RandomRotation(degrees=(-180, 180))  # Rotate within +/- 180 degrees
+    ])
+    
+    # Open the image
+    image = Image.open(image_path)
+    
+    # Apply the transform
+    rotated_image = transform(image)
+    
+    return rotated_image
+
+
 # Example usage:
 
-def load_symbols1(folder_path):
+def load_symbols1(folder_path, output_path ):
     """    
     """
     
@@ -39,27 +74,46 @@ def load_symbols1(folder_path):
         if os.path.isdir(sub_folder):   
             
             
-            for i, filename in enumerate(os.listdir(sub_folder),150):
+            for i, filename in enumerate(os.listdir(sub_folder),29):
                 # print(filename)
                 if filename.lower().endswith(('.jepg','png','.jpg')):
                         image_path = os.path.join(sub_folder, filename)
                         symbol_name = filename.rpartition('_')[0]
-                        flipped_image = flip_image_horizontally_torchvision(image_path)
-                        save_path = os.path.join(sub_folder, f'{symbol_name}_{i:04}.png')
-                        flipped_image.save(save_path)
+                        flipped_image = flip_image_vertically_torchvision(image_path)
+                        save_path = os.path.join(output_path, f'stamp_{i:04}.png')
 
-
-         
-                  
+                        flipped_image.save(save_path)                  
             
         else:
             print("invalid directory")
 
     # random.shuffle(all_party_symbols)    
+
+
+
+def load_symbols2(folder_path, output_path):
+        
+    # sub_folder = folder_path + folder
+    if os.path.isdir(folder_path):           
+        
+        for i, filename in enumerate(os.listdir(folder_path), 70):
+            # print(filename)
+            if filename.lower().endswith(('.jepg','png','.jpg')):
+                image_path = os.path.join(folder_path, filename)
+                symbol_name = filename.rpartition('_')[0]
+                flipped_image = flip_image_vertically_torchvision(image_path)
+                save_path = os.path.join(output_path, f'stamp_{i:04}.png')
+                flipped_image.save(save_path)                  
+        
+    else:
+        print("invalid directory")
+
+    # random.shuffle(all_party_symbols)   
    
 
-image_path = '../../../datasets_symbol_train1/'
-load_symbols1(image_path)
+image_path = '../../../datasets_stamp/original_invalid_ stamps/'
+output_path = '../../../datasets_stamp/invalid_newsets/'
+load_symbols2(image_path, output_path)
 
 
 

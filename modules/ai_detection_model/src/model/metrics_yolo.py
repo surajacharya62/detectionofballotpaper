@@ -39,7 +39,9 @@ class YoloMetrics():
     def generate_separate_precision_recall_curves(self, pred_path):
 
         file_name = 'infer_df_yolo.xlsx'
-        df = pd.read_excel(os.path.join(pred_path, file_name))
+        path = os.path.join('../../../yolo_files/', file_name)
+        df = pd.read_excel(path)
+        df = pd.DataFrame(df) 
         unique_classes = df['class'].unique()
         classes = sorted(unique_classes)
         n_classes = 43       
@@ -94,7 +96,7 @@ class YoloMetrics():
     
     def call_metrics(self, file_path):
         
-        f1_micro_data = pd.read_excel(os.path.join(file_path, 'infer_df.xlsx')) 
+        f1_micro_data = pd.read_excel(os.path.join(file_path, 'infer_df_yolo.xlsx')) 
         df = pd.DataFrame(f1_micro_data)     
 
         ##-----------------Precision Recall Curve Visualization
@@ -105,7 +107,7 @@ class YoloMetrics():
 
 
         # # -------------------------------Calculate Macro F1 Score
-        data_summary = pd.read_excel(os.path.join(file_path, 'class_summary_df.xlsx'))   
+        data_summary = pd.read_excel(os.path.join(file_path, 'class_summary_df_yolo.xlsx'))   
         df_summary = pd.DataFrame(data_summary)
         df_summary['F1'] = 2 * (df_summary['Precision'] * df_summary['Recall']) / (df_summary['Precision'] + df_summary['Recall'])
 

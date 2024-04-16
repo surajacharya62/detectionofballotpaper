@@ -56,12 +56,12 @@ class VisualizePrediction():
                     
           
     def visualize_train_set(self, train_labels, label_to_id):
-            
+            print(train_labels)
             image = train_labels[0]
-            boxes = train_labels[1]['boxes'] 
-            labels = train_labels[1]['labels']
+            boxes = train_labels[3]['boxes'] 
+            labels = train_labels[3]['labels']
             # scores = train_labels[1]['scores']
-            image_name = train_labels[1]['image_id']  
+            image_name = train_labels[2]
             img_np = image.permute(1, 2, 0).numpy()         
             id_to_label = {value: key for key, value in label_to_id.items()}
             fig, ax = plt.subplots(1) 

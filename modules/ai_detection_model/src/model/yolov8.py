@@ -3,14 +3,21 @@ import os
 import pandas as pd
 import csv
 import json
+from PIL import Image
+from torch.utils.data import DataLoader
+import torch
 
 from visualize.visualize_yolo import YoloVisualize
 from helper_yolo.yolo_normalize import YoloNormalize
 from model.metrics_yolo import YoloMetrics
+from vote_validation.validate_vote import ValidateVote
+from helper_yolo.data_for_vote import CreateDataForVote
 
 obj_visualize = YoloVisualize()
 obj_normalize = YoloNormalize()
 obj_metrics = YoloMetrics()
+obj_vote_validate = ValidateVote()
+obj_data_for_vote = CreateDataForVote()
 
 root_path = '../../../'
 
@@ -100,6 +107,7 @@ true_labels_path = '../../../testing_set/set4/yolov8'
 obj_normalize.normalize(pred_labels_path, output_save_path)
 obj_normalize.objeval_format_true_labels(true_labels_path, output_save_path)
 obj_normalize.objeval_format_pred_labels(pred_labels_path)
+obj_normalize.pred_labels_conerized_normalized(output_save_path)
 
 
 #---------------For metrics----------------------------------------------------
@@ -107,6 +115,12 @@ obj_normalize.objeval_format_pred_labels(pred_labels_path)
 obj_metrics.metrics(pred_labels_path)
 obj_metrics.generate_separate_precision_recall_curves(pred_labels_path)
 obj_metrics.call_metrics(pred_labels_path)
+
+
+#----------------For vote validation------------------------------------------------
+test_path = '../../../testing_set/set4/'
+obj_data_for_vote.data(output_save_path, test_path)
+
 
 
 

@@ -120,7 +120,7 @@ class ValidateVote():
                             ax.text(x1, y1, class_name, color='Red', fontsize=8)                       
         
                             plt.axis('off')  # Optional: Remove axes for cleaner visualization
-                            plt.savefig(f'../../../output/vote_validation/valid_{image_name}.jpg', bbox_inches='tight', pad_inches=0,dpi=600)
+                            plt.savefig(f'../../../output/vote_validation/faster_rcnn/valid_{image_name}.jpg', bbox_inches='tight', pad_inches=0,dpi=600)
                             # plt.close()
 
                         else:
@@ -136,7 +136,7 @@ class ValidateVote():
 
                             symbols_class.append((image_name, class_name, class_name, 'Invalid', 'Invalid symbol'))
                             plt.axis('off')  # Optional: Remove axes for cleaner visualization
-                            plt.savefig(f'../../../output/vote_validation/invalid_{image_name}.jpg', bbox_inches='tight', pad_inches=0,dpi=600)
+                            plt.savefig(f'../../../output/vote_validation/faster_rcnn/invalid_{image_name}.jpg', bbox_inches='tight', pad_inches=0,dpi=600)
                             # plt.close()
 
                     # else:
@@ -155,7 +155,7 @@ class ValidateVote():
 
         #   Symbols: 1-Tree 2-Sun …. and Vote - Tree|Invalid|No stamp.                    
         df = pd.DataFrame(symbols_class, columns=['Image Id','Symbol','Vote','Valid','Remarks'])
-        df.to_excel('Vote_results.xlsx')
+        df.to_excel('../../../output/vote_results/vote_results_faster.xlsx')
 
         # if df.empty:
         #     print("Vote Not Detected")
@@ -210,27 +210,58 @@ class ValidateVote():
         
         return horizontal_distance, vertical_distance
     
-    def is_stamp_for_symbol(self, stamp_box, symbol_boxes):
-        """Determine if a stamp is for a symbol based on calculated edge distances."""
-        closest_distance = float('inf')
-        closest_symbol_label = None
-        closest_symbol_box = None        
+    # def is_stamp_for_symbol(self, stamp_box, symbol_boxes):
+    #     """Determine if a stamp is for a symbol based on calculated edge distances."""
+    #     closest_distance = float('inf')
+    #     closest_symbol_label = None
+    #     closest_symbol_box = None        
 
-        for symbol_box, symbol_label, _ in symbol_boxes:  # Assume '_' is a placeholder for another value, like 'score'
-            if symbol_label != 30:  # Assuming '30' is the label for 'stamp'
+    #     for symbol_box, symbol_label, _ in symbol_boxes:  # Assume '_' is a placeholder for another value, like 'score'
+    #         symbol_box = symbol_box.cpu().numpy()
+    #         if symbol_label != 30:  # Assuming '30' is the label for 'stamp'
+    #             if self.iou(stamp_box, symbol_box) > 0.0:  # There is an overlap
+    #                 return True, symbol_label, symbol_box
+    #             else:
+                    
+    #                 horizontal_distance, vertical_distance = self.calculate_edge_distance(stamp_box, symbol_box)
+    #                 # print(horizontal_distance)
+                    
+    #                 # For simplicity, let's focus on horizontal distance
+    #                 if horizontal_distance < closest_distance:
+    #                     closest_distance = horizontal_distance
+    #                     closest_symbol_label = symbol_label
+    #                     closest_symbol_box = symbol_box
+
+    #     adjusted_proximity_threshold = 378 - 189  # Example adjustment
+        
+    #     if closest_distance <= adjusted_proximity_threshold:
+    #         print("True")
+    #         return True, closest_symbol_label, closest_symbol_box
+    #     else:
+    #         print("False")
+    #         return False, None, None
+
+
+    def is_stamp_for_symbol(self, stamp_box, symbol_boxes):
+        """Determine if a stamp is for a symbol based on overlap or proximity."""
+        closest_distance = float('inf') 
+        closest_symbol_label = None
+        for symbol_box, symbol_label, score in symbol_boxes:
+            symbol_box = symbol_box.cpu().numpy()
+            if symbol_label != 30:
                 if self.iou(stamp_box, symbol_box) > 0.0:  # There is an overlap
                     return True, symbol_label, symbol_box
-                else:
-                    symbol_box = symbol_box.cpu().numpy()
-                    horizontal_distance, vertical_distance = self.calculate_edge_distance(stamp_box, symbol_box)
-                    # print(horizontal_distance)
-                    
-                    # For simplicity, let's focus on horizontal distance
-                    if horizontal_distance < closest_distance:
-                        closest_distance = horizontal_distance
+                else:  # Check for proximity
+                    dist = ((self.center(symbol_box)[0] - self.center(stamp_box)[0]) ** 2 + 
+                            (self.center(symbol_box)[1] - self.center(stamp_box)[1]) ** 2) ** 0.5
+                    if dist < closest_distance:
+                        closest_distance = dist
+                        # print(closest_distance)
                         closest_symbol_label = symbol_label
                         closest_symbol_box = symbol_box
-
+        # Check if the closest symbol is within the acceptable threshold distance
+        # if closest_distance < proximity_threshold:
+        #     return True, closest_symbol_label, symbol_box
         adjusted_proximity_threshold = 378 - 189  # Example adjustment
         
         if closest_distance <= adjusted_proximity_threshold:
@@ -238,28 +269,5 @@ class ValidateVote():
             return True, closest_symbol_label, closest_symbol_box
         else:
             print("False")
-            return False, None, None
-
-
-
-    # def is_stamp_for_symbol(self, stamp_box, symbol_boxes, proximity_threshold):
-    #     """Determine if a stamp is for a symbol based on overlap or proximity."""
-    #     closest_distance = float('inf') 
-    #     closest_symbol_label = None
-    #     for symbol_box, symbol_label, score in symbol_boxes:
-    #         # print(symbol_label)
-    #         if symbol_label != 30:
-    #             if self.iou(stamp_box, symbol_box) > 0.0:  # There is an overlap
-    #                 return True, symbol_label, symbol_box
-    #             else:  # Check for proximity
-    #                 dist = ((self.center(symbol_box)[0] - self.center(stamp_box)[0]) ** 2 + 
-    #                         (self.center(symbol_box)[1] - self.center(stamp_box)[1]) ** 2) ** 0.5
-    #                 if dist < closest_distance:
-    #                     closest_distance = dist
-    #                     print(closest_distance)
-    #                     closest_symbol_label = symbol_label
-    #     # Check if the closest symbol is within the acceptable threshold distance
-    #     # if closest_distance < proximity_threshold:
-    #     #     return True, closest_symbol_label, symbol_box
-    #     return True, closest_symbol_label, symbol_box
+            return False, closest_symbol_label, closest_symbol_box
 

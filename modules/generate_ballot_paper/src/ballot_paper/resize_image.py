@@ -121,12 +121,13 @@ import numpy as np
 
 import cv2
 import numpy as np
+import os
 
 class ImageResize():
 
     # global i
     
-
+    
     def resize_image(self, image_files):
         image_height = 150
         image_width = 150
@@ -141,9 +142,25 @@ class ImageResize():
            
             # rgb_color = cv2.cvtColor(resized_image, cv2.COLOR_RGB2BGR)
             
-            cv2.imwrite(f'../result/stamp_{i:04}.png', resized_image)
+            cv2.imwrite(f'../../../datasets_stamp/invalid_stamp/invalid_stamp_{i:04}.png', resized_image)
                             
             i += 1
+    
+    def load_images(self, images_files):
+        symbols = []
+        for filename in os.listdir(images_files):      
+                                
+            if filename.lower().endswith(('.jepg','png','.jpg')):
+                img = cv2.imread(os.path.join(images_files, filename),  cv2.IMREAD_UNCHANGED)
+                                        
+                if img.shape[2] < 4:
+                    # Add alpha channel, setting all initial values to 255 (fully opaque)
+                    alpha_channel = np.ones((img.shape[0], img.shape[1], 1), dtype=img.dtype) * 255
+                    img = np.concatenate((img, alpha_channel), axis=2)
+
+            symbols.append(img)
+        
+        self.resize_image(symbols)
 
             # for i, img in enumerate(cropped, 1):
             #     rgb_color = cv2.cvtColor(img, cv2.COLOR_RGB2BGR)
@@ -151,7 +168,10 @@ class ImageResize():
 
 
 
+image_pathe = '../../../datasets_stamp/invalid_newsets/'
 
+obj = ImageResize()
+obj.load_images(image_pathe)
 
 
 

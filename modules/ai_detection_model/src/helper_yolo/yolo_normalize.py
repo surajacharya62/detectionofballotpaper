@@ -112,6 +112,35 @@ class YoloNormalize():
         excel_path = 'pred_labels_objeval_format.xlsx'
         df_annotations.to_excel(os.path.join(preds_path, excel_path), index=False)
 
+
+    def pred_labels_conerized_normalized(self, preds_path):    
+        
+        objeval_notations = []
+        file_name = 'pred_labels_cornerized.xlsx'
+        labels_df = pd.read_excel(os.path.join(preds_path, file_name ))       
+            
+        for annotation in labels_df.iterrows():  
+                         
+            box = ast.literal_eval(annotation[1]['box_coord'])
+            xmin = box[0]
+            ymin = box[1]
+            xmax = box[2]
+            ymax = box[3]  
+            xmin, ymin, xmax, ymax =  xmin, ymin, xmax, ymax
+            objeval_notations.append({
+                'image_name': annotation[1]['image_name'],
+                'label': annotation[1]['label'],
+                'score': annotation[1]['score'],
+                'xmin': xmin,
+                'ymin': ymin,
+                'xmax': xmax,
+                'ymax': ymax
+            })
+    
+        df_annotations = pd.DataFrame(objeval_notations)
+        excel_path = 'pred_labels_conerized_normalized.xlsx'
+        df_annotations.to_excel(os.path.join(preds_path, excel_path), index=False)
+
     def normalize_yolo(self, box, img_width, img_height):
         """
         Normalize YOLO format bounding box coordinates.

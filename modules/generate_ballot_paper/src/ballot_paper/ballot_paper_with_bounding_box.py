@@ -35,7 +35,7 @@ def load_test_symbols(folder_path):
     # print(sub_dir)
     for filename in os.listdir(folder_path):
         # print(filename)
-        print("folder:" + filename)
+        # print("folder:" + filename)
         if filename.lower().endswith(('.jepg','png','.jpg')):
                 img = cv2.imread(os.path.join(folder_path, filename))
                 symbol_name = os.path.splitext(filename)[0] 
@@ -64,7 +64,7 @@ def load_symbols(folder_path):
     symbols = []
     for folder in os.listdir(folder_path):
         sub_folder = os.path.join(folder_path, folder) 
-        print('folder: ' + folder)
+        # print('folder: ' + folder)
        
         # sub_folder = folder_path + folder
         if os.path.isdir(sub_folder):
@@ -180,8 +180,8 @@ def draw_symbols(ballot_paper, symbols, start_y, columns, rows, ml, cell_width, 
     # print(len(random_symbols))
     cell_height
     symbol_boxes_with_name = []
-    print(num_candidates)
-    print(len(symbols))
+    # print(num_candidates)
+    # print(len(symbols))
     if num_candidates <= len(symbols):
         # Place the symbols in the grid
         y_pos = 0
@@ -347,6 +347,7 @@ def place_stamp(ballot, stamps, y_start,candidates,symbol_size, cell_width, cell
     actual_rows = math.ceil(candidates / columns)  # Actual number of rows needed   
     row = random.randint(0, actual_rows - 1)
     col = random.randint(0, columns - 1)
+    print(cell_width, cell_height, stamp_width, stamp_height)
 
     if is_valid:
         # Placing the stamp entirely within the cell
@@ -365,6 +366,36 @@ def place_stamp(ballot, stamps, y_start,candidates,symbol_size, cell_width, cell
     stamp_box = [stamp_name, x, y, x + stamp_width, y + stamp_height]
 
     return stamp_box
+
+
+# def place_stamp(ballot, stamp, y_start, candidates,symbol_size, cell_width, cell_height, rows, columns, margins, is_valid):
+#     mt, mb, ml, mr = margins
+#     stamp_width, stamp_height = 150, 150  # Stamp dimensions
+
+#     # Calculate the actual number of rows needed for the given number of candidates
+#     actual_rows = math.ceil(candidates / columns)
+#     row = random.randint(0, actual_rows - 1)
+#     col = random.randint(0, columns - 1)
+
+#     if is_valid:
+#         # Calculate the random offset within the cell, ensuring it fits within the cell dimensions
+#         x_offset = random.randint(0, max(0, cell_width - stamp_width))
+#         y_offset = random.randint(0, max(0, cell_height - stamp_height))
+#     else:
+#         # For invalid cases, you may want different logic for placing the stamp
+#         x_offset = random.randint(-stamp_width // 2, max(-stamp_width // 2, cell_width - stamp_width // 2))
+#         y_offset = random.randint(-stamp_height // 2, max(-stamp_height // 2, cell_height - stamp_height // 2))
+
+#     # Calculate final positions
+#     x = ml + col * cell_width + x_offset
+#     y = y_start + row * cell_height + y_offset
+
+#     # Place the stamp on the ballot
+#     ballot.paste(stamp, (x, y), stamp)
+
+#     # Return the bounding box of the stamp
+#     stamp_box = [x, y, x + stamp_width, y + stamp_height]
+#     return stamp_box
 
 
 def create_stamped_ballots(symbols, stamp_path, rows, columns, candidates,
@@ -413,13 +444,13 @@ def create_stamped_ballots(symbols, stamp_path, rows, columns, candidates,
 
 
 # symbols_train_path = '../../../datasets_symbol/'
-symbols_test_path = '../../../test_folder' 
+symbols_test_path = '../../../validation_folder' 
 # symbols = load_symbols(symbols_train_path)
 # print(len(symbols))
 
 
 
-stamp_path = '../../../datasets_stamp/train/'  # Path to your stamp image
+stamp_path = '../../../datasets_stamp/valid1/validation_folder/'  # Path to your stamp image
 symbol_size = (189, 189)  # Symbol size (width, height)
 
 
@@ -433,11 +464,11 @@ print("test")
 
 header = ['image_id','label', 'x1', 'y1', 'x2', 'y2']
 import csv
-with open('../../../testing_set/set5/annotations.csv', 'w', newline='') as file:
+with open('../../../validation_set/set5/annotations.csv', 'w', newline='') as file:
     writer = csv.writer(file) 
     writer.writerow(header)  # Write the header 
 
-    for i in range(1, 100):
+    for i in range(1, 200):
         
         symbols = load_symbols1(symbols_test_path)
         print(len(symbols))
@@ -448,7 +479,7 @@ with open('../../../testing_set/set5/annotations.csv', 'w', newline='') as file:
                                                                 margins=(300, 300, 200, 200))
 
         
-        valid_ballot.save(f'../../../testing_set/set5/test/image_{i:04}.jpg')
+        valid_ballot.save(f'../../../validation_set/set5/val/image_{i:04}.jpg')
         # invalid_ballot.save(f'../../../datasets/ballot_datasets/invalid/invalid_{i:04}.jpg')
 
         for symbol_name, *bbox in annotations:
