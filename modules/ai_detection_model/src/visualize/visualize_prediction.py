@@ -4,6 +4,9 @@ import matplotlib.patches as patches
 import numpy as np
 import pandas as pd
 
+import warnings
+warnings.filterwarnings('ignore', 'Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers)')
+
 
 class VisualizePrediction():
 
@@ -17,6 +20,7 @@ class VisualizePrediction():
             image = test_data[0]                       
             img_np = image.permute(1, 2, 0).numpy()         
             id_to_label = {value: key for key, value in label_to_id.items()}
+            
             fig, ax = plt.subplots(1) 
             ax.imshow(img_np) 
             
@@ -50,13 +54,13 @@ class VisualizePrediction():
                 ax.text(x1, y1, class_name, color='red', fontsize=4)             
          
             plt.axis('off')  # Optional: Remove axes for cleaner visualization
-            plt.savefig(f'../../../output/visualization/{image_name}1.png', bbox_inches='tight', pad_inches=0, dpi=300)           
+            plt.savefig(f'../../../output/visualization/faster_rcnn/{image_name}1.png', bbox_inches='tight', pad_inches=0, dpi=300)           
             plt.close()
             
                     
           
     def visualize_train_set(self, train_labels, label_to_id):
-            print(train_labels)
+           
             image = train_labels[0]
             boxes = train_labels[3]['boxes'] 
             labels = train_labels[3]['labels']

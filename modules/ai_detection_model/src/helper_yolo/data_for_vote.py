@@ -4,6 +4,8 @@ import os
 from PIL import Image
 from torch.utils.data import DataLoader, Dataset
 from vote_validation.validate_vote_yolo import ValidateVote
+from helper_yolo.compare_bounding_boxes import CompareBoundingBox
+from helper_yolo.reshape_compared_boxes import ReshapeData
 import torchvision.transforms as T
 
 
@@ -74,9 +76,9 @@ class CreateDataForVote():
         return transforms   
 
 
-    def data(self,yolo_files, test_files):
+    def data(self, yolo_files, test_files):
 
-        test_set_path = '../../../testing_set/set4/'
+        test_set_path = '../../../../testing_set/set6/'
         # yolo_files_path = '../../../yolo_files/'
         test = 'test'
 
@@ -112,5 +114,13 @@ class CreateDataForVote():
 
         obj_val = ValidateVote()
         obj_val.predicted_images(test_set, pred_df, labe_id)
+
+        obj_com = CompareBoundingBox()
+        obj_com.labels(test_set, pred_df, labe_id)
+
+        obj_reshape = ReshapeData()
+        file_path = '../../../../yolo_files/df_total_comparisions.xlsx'
+        obj_reshape.process_and_reshape_data_v2(file_path)
+
 
     

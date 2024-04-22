@@ -49,46 +49,47 @@ class Metrics():
         true = pd.read_excel(os.path.join(files_path, 'true_labels_df.xlsx'))
         trued = pd.DataFrame(true)
 
-        infer_df = im.get_inference_metrics_from_df(predd, trued)
-        infer_df.to_excel(os.path.join(files_path, 'infer_df.xlsx'))
+        # infer_df = im.get_inference_metrics_from_df(predd, trued)
+        # infer_df.to_excel(os.path.join(files_path, 'infer_df.xlsx'))
+        class_summary = pd.read_excel('../../../faster_rcnn_files/total_comparisons_normalized.xlsx')
 
-        class_summary_df = im.summarise_inference_metrics(infer_df)
+        class_summary_df = im.summarise_inference_metrics(class_summary)
         class_summary_df.to_excel(os.path.join(files_path, 'class_summary_df.xlsx'))
    
     
-    def generate_precision_recall_curve(self, df, class_name):
-        # Filter DataFrame for the current class
-        class_df = df[df['class'] == class_name].copy()
+    # def generate_precision_recall_curve(self, df, class_name):
+    #     # Filter DataFrame for the current class
+    #     class_df = df[df['class'] == class_name].copy()
         
-        # Sort by Confidence in descending order
-        class_df.sort_values('Confidence', ascending=False, inplace=True)
+    #     # Sort by Confidence in descending order
+    #     class_df.sort_values('Confidence', ascending=False, inplace=True)
         
-        # Initialize lists to store precision and recall values
-        precisions = []
-        recalls = []
+    #     # Initialize lists to store precision and recall values
+    #     precisions = []
+    #     recalls = []
         
-        # Cumulatively calculate TP, FP, FN to determine precision and recall at each threshold
-        cumulative_tp = 0
-        cumulative_fp = 0
-        for i in range(len(class_df)):
-            cumulative_tp += class_df.iloc[i]['TP']
-            cumulative_fp += class_df.iloc[i]['FP']
-            cumulative_fn = class_df['FN'].sum()  # FN remains constant for a given class
+    #     # Cumulatively calculate TP, FP, FN to determine precision and recall at each threshold
+    #     cumulative_tp = 0
+    #     cumulative_fp = 0
+    #     for i in range(len(class_df)):
+    #         cumulative_tp += class_df.iloc[i]['TP']
+    #         cumulative_fp += class_df.iloc[i]['FP']
+    #         cumulative_fn = class_df['FN'].sum()  # FN remains constant for a given class
             
-            precision = cumulative_tp / (cumulative_tp + cumulative_fp) if (cumulative_tp + cumulative_fp) > 0 else 0
-            recall = cumulative_tp / (cumulative_tp + cumulative_fn) if (cumulative_tp + cumulative_fn) > 0 else 0
+    #         precision = cumulative_tp / (cumulative_tp + cumulative_fp) if (cumulative_tp + cumulative_fp) > 0 else 0
+    #         recall = cumulative_tp / (cumulative_tp + cumulative_fn) if (cumulative_tp + cumulative_fn) > 0 else 0
             
-            precisions.append(precision)
-            recalls.append(recall)
+    #         precisions.append(precision)
+    #         recalls.append(recall)
         
-        # Plotting
-        plt.figure(figsize=(10, 6))
-        plt.plot(recalls, precisions, marker='.', label=f'Precision-Recall Curve for {class_name}')
-        plt.xlabel('Recall')
-        plt.ylabel('Precision')
-        plt.title(f'Precision-Recall Curve for {class_name}')
-        plt.legend()
-        plt.show()
+    #     # Plotting
+    #     plt.figure(figsize=(10, 6))
+    #     plt.plot(recalls, precisions, marker='.', label=f'Precision-Recall Curve for {class_name}')
+    #     plt.xlabel('Recall')
+    #     plt.ylabel('Precision')
+    #     plt.title(f'Precision-Recall Curve for {class_name}')
+    #     plt.legend()
+    #     plt.show()
 
 
     def generate_separate_precision_recall_curves(self, df):
@@ -148,7 +149,7 @@ class Metrics():
 
     def call_metrics(self, file_path):
         
-        f1_micro_data = pd.read_excel(os.path.join(file_path, 'infer_df.xlsx')) 
+        f1_micro_data = pd.read_excel(os.path.join(file_path, 'total_comparisons_normalized.xlsx')) 
         df = pd.DataFrame(f1_micro_data)     
 
         ##-----------------Precision Recall Curve Visualization

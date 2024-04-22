@@ -1,8 +1,8 @@
-path: 'E:/Oslo/OsloMet/Fourth semester/DetectionOfBallotPaper/modules/yolodata/set3'
+path: 'E:/Oslo/OsloMet/Fourth semester/DetectionOfBallotPaper/modules/yolodata/set4'
 train: train_set/images/train
 val: val_set/images/train
 
-nc: 43  # Number of classes
+nc: 44  # Number of classes
 
 names: [
   "balance",
@@ -19,6 +19,7 @@ names: [
   "heart",
   "hoe",
   "house",
+  "invalid_stamp",
   "key",
   "ladder",
   "lock",
@@ -34,8 +35,7 @@ names: [
   "owl",
   "pen",
   "roaster",
-  "sheep",
-  "stamp",
+  "sheep",  
   "star",
   "stick",
   "sun",
@@ -44,6 +44,7 @@ names: [
   "tree",
   "turtle",
   "umbrella",
+  "valid_stamp",
   "water_glass",
   "water_jug",
   "woman_man",

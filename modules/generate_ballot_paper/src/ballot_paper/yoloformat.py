@@ -1,7 +1,7 @@
 import pandas as pd
 
 # Load your CSV annotations
-df = pd.read_csv('../../../testing_set/set4/annotations.csv')
+df = pd.read_csv('../../../testing_set/set6/annotations.csv')
 
 
 label_to_id = {label: i for i, label in enumerate(df['label'].unique())}
@@ -10,7 +10,6 @@ all_labels = sorted(label_to_id)
 
 # Create a consistent mapping from label names to label IDs, starting from 1
 label_to_id1 = {label: i for i, label in enumerate(all_labels)}
-# label_to_id1['stamp'] = 1
 
 for _, row in df.iterrows():
 
@@ -21,10 +20,10 @@ for _, row in df.iterrows():
     height = (row['y2'] - row['y1']) / 3413
     
     # Write to a new .txt file for each image
-    with open(f'../../../testing_set/set4/yolov8/{row["image_id"].replace(".jpg", ".txt")}', 'a') as file:
+    with open(f'../../../testing_set/set6/yolov8annotations/{row["image_id"].replace(".jpg", ".txt")}', 'a') as file:
         file.write(f"{class_id} {x_center} {y_center} {width} {height}\n")
 
-# import os
+# # import os
 
 # def check_dataset_annotations(root_dir):
 #     for subdir, dirs, files in os.walk(root_dir):

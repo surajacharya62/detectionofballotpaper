@@ -53,65 +53,64 @@ def normalize_bbox(img_w, img_h, bbox):
 
 class YoloNormalize():
 
-    def objeval_format_true_labels(self, true_labels_path, output_save_path):
+    # def objeval_format_true_labels(self, true_labels_path, output_save_path):
         
-        annotations = []      
-        annotation_files = [f for f in os.listdir(true_labels_path) if f.endswith('.txt')] 
+    #     annotations = []      
+    #     annotation_files = [f for f in os.listdir(true_labels_path) if f.endswith('.txt')] 
 
-        def parse_annotation(file_path):
-            with open(file_path, 'r') as file:                
-                annotations = [line.strip().split() for line in file.readlines()]
-            return annotations
+    #     def parse_annotation(file_path):
+    #         with open(file_path, 'r') as file:                
+    #             annotations = [line.strip().split() for line in file.readlines()]
+    #         return annotations
        
-        for annotation_file in annotation_files:
-            file_path = os.path.join(true_labels_path, annotation_file)            
-            file_annotations = parse_annotation(file_path)           
-            for annotation in file_annotations:                
-                if len(annotation) == 5:
-                    label, xmin, ymin, xmax, ymax = annotation
-                    annotations.append({
-                        'image_name': annotation_file.replace('.txt', '.jpg'),
-                        'label': label,
-                        'xmin': xmin,
-                        'ymin': ymin,
-                        'xmax': xmax,
-                        'ymax': ymax
-                    })
+    #     for annotation_file in annotation_files:
+    #         file_path = os.path.join(true_labels_path, annotation_file)            
+    #         file_annotations = parse_annotation(file_path)           
+    #         for annotation in file_annotations:                
+    #             if len(annotation) == 5:
+    #                 label, xmin, ymin, xmax, ymax = annotation
+    #                 annotations.append({
+    #                     'image_name': annotation_file.replace('.txt', '.jpg'),
+    #                     'label': label,
+    #                     'xmin': xmin,
+    #                     'ymin': ymin,
+    #                     'xmax': xmax,
+    #                     'ymax': ymax
+    #                 })
      
-        df_annotations = pd.DataFrame(annotations)    
+    #     df_annotations = pd.DataFrame(annotations)    
 
-        excel_path = 'true_labels_objeval_format.xlsx'
-        df_annotations.to_excel(os.path.join(output_save_path, excel_path), index=False)
+    #     excel_path = 'true_labels_objeval_format.xlsx'
+    #     df_annotations.to_excel(os.path.join(output_save_path, excel_path), index=False)
 
 
-    def objeval_format_pred_labels(self, preds_path):    
+    # def objeval_format_pred_labels(self, preds_path):    
         
-        objeval_notations = []
-        file_name = 'pred_labels_normalized.xlsx'
-        labels_df = pd.read_excel(os.path.join(preds_path, file_name ))       
+    #     objeval_notations = []
+    #     file_name = 'pred_labels_normalized.xlsx'
+    #     labels_df = pd.read_excel(os.path.join(preds_path, file_name ))       
             
-        for annotation in labels_df.iterrows():  
+    #     for annotation in labels_df.iterrows():  
                          
-            box = ast.literal_eval(annotation[1]['box_coord'])
-            xmin = box[0]
-            ymin = box[1]
-            xmax = box[2]
-            ymax = box[3]  
-            xmin, ymin, xmax, ymax =  xmin, ymin, xmax, ymax
-            objeval_notations.append({
-                'image_name': annotation[1]['image_name'],
-                'label': annotation[1]['label'],
-                'score': annotation[1]['score'],
-                'xmin': xmin,
-                'ymin': ymin,
-                'xmax': xmax,
-                'ymax': ymax
-            })
+    #         box = ast.literal_eval(annotation[1]['box_coord'])
+    #         xmin = box[0]
+    #         ymin = box[1]
+    #         xmax = box[2]
+    #         ymax = box[3]  
+    #         xmin, ymin, xmax, ymax =  xmin, ymin, xmax, ymax
+    #         objeval_notations.append({
+    #             'image_name': annotation[1]['image_name'],
+    #             'label': annotation[1]['label'],
+    #             'score': annotation[1]['score'],
+    #             'xmin': xmin,
+    #             'ymin': ymin,
+    #             'xmax': xmax,
+    #             'ymax': ymax
+    #         })
     
-        df_annotations = pd.DataFrame(objeval_notations)
-        excel_path = 'pred_labels_objeval_format.xlsx'
-        df_annotations.to_excel(os.path.join(preds_path, excel_path), index=False)
-
+    #     df_annotations = pd.DataFrame(objeval_notations)
+    #     excel_path = 'pred_labels_objeval_format.xlsx'
+    #     df_annotations.to_excel(os.path.join(preds_path, excel_path), index=False)
 
     def pred_labels_conerized_normalized(self, preds_path):    
         
@@ -119,8 +118,7 @@ class YoloNormalize():
         file_name = 'pred_labels_cornerized.xlsx'
         labels_df = pd.read_excel(os.path.join(preds_path, file_name ))       
             
-        for annotation in labels_df.iterrows():  
-                         
+        for annotation in labels_df.iterrows():                           
             box = ast.literal_eval(annotation[1]['box_coord'])
             xmin = box[0]
             ymin = box[1]
@@ -135,23 +133,13 @@ class YoloNormalize():
                 'ymin': ymin,
                 'xmax': xmax,
                 'ymax': ymax
-            })
-    
+            }) 
+
         df_annotations = pd.DataFrame(objeval_notations)
         excel_path = 'pred_labels_conerized_normalized.xlsx'
         df_annotations.to_excel(os.path.join(preds_path, excel_path), index=False)
 
-    def normalize_yolo(self, box, img_width, img_height):
-        """
-        Normalize YOLO format bounding box coordinates.
-
-        Args:
-        - x_center, y_center, width, height: YOLO format bounding box dimensions in pixels.
-        - img_width, img_height: Dimensions of the image.
-
-        Returns:
-        - Tuple of normalized (x_center, y_center, width, height).
-        """
+    def normalize_yolo(self, box, img_width, img_height):      
         x_center, y_center, width, height = box
         x_center /= img_width
         y_center /= img_height
@@ -205,7 +193,7 @@ class YoloNormalize():
 
     def set_corner(self, row):
         # df_annotations = pd.read_csv()
-        image_path= '../../../testing_set/set4/test/image_0001.jpg'
+        image_path= '../../../../testing_set/set6/test/image_0001.jpg'
         image = Image.open(image_path)
         image_width, image_height = image.size   
         # print(row)

@@ -3,6 +3,8 @@ import os
 import random
 from PIL import Image, ImageDraw, ImageFont
 import math
+import random
+import math
 import pandas as pd
 
 
@@ -330,42 +332,172 @@ def create_ballot(rows, columns, candidates, symbols, symbol_size, top_text, hea
         print("Insufficient space for the grid layout")
 
 
-
-
-def place_stamp(ballot, stamps, y_start,candidates,symbol_size, cell_width, cell_height, rows, columns, margins, is_valid):
-    """
+# def place_stamp(ballot, stamps, y_start, candidates, symbol_size, cell_width, cell_height, rows, columns, margins, is_valid):
+#     mt, mb, ml, mr = margins
+#     stamp, stamp_name = stamps
+#     stamp_width, stamp_height = stamp.size
     
-    """
+#     symbol_width, symbol_height = 189, 189  # Defined symbol size
+
+#     last_row_symbols = candidates % columns if candidates % columns != 0 else columns
+#     actual_rows = math.ceil(candidates / columns)
+    
+#     row = random.randint(0, actual_rows - 1)
+#     col = random.randint(0, columns - 1 if row < actual_rows - 1 else last_row_symbols - 1)
+
+#     # Define the symbol and cell boundaries
+#     symbol_start_x = ml + col * cell_width
+#     symbol_end_x = symbol_start_x + symbol_width
+#     cell_end_x = symbol_start_x + cell_width
+
+#     if is_valid:
+#         # No overlap area
+#         min_x = symbol_start_x
+#         max_x = cell_end_x - stamp_width
+#         x = random.randint(min_x, max_x) if min_x < max_x else min_x  # Ensure x is within bounds
+#     else:
+#         # For invalid stamps or other scenarios, adjust logic as necessary
+#         x = symbol_start_x + random.randint(0, cell_width - stamp_width)
+
+#     # Calculate y coordinate within the cell
+#     min_y = y_start + row * cell_height
+#     max_y = y_start + (row + 1) * cell_height - stamp_height
+#     y = random.randint(min_y, max_y)
+
+#     # Paste the stamp on the ballot
+#     ballot.paste(stamp, (x, y), stamp)
+#     stamp_box = [stamp_name, x, y, x + stamp_width, y + stamp_height]
+
+#     return stamp_box
+
+def place_stamp(ballot, stamps, y_start, candidates, symbol_size, cell_width, cell_height, rows, columns, margins, is_valid):
     mt, mb, ml, mr = margins
-    stamp,  stamp_name = stamps
+    stamp, stamp_name = stamps
     stamp_width, stamp_height = stamp.size
-    # y_position = draw_header_box()
-    # Randomly choose a cell to place stamp in grid cell
     
+    symbol_width, symbol_height = 189, 189
+
     last_row_symbols = candidates % columns if candidates % columns != 0 else columns
+    actual_rows = math.ceil(candidates / columns)
     
-    actual_rows = math.ceil(candidates / columns)  # Actual number of rows needed   
     row = random.randint(0, actual_rows - 1)
     col = random.randint(0, columns - 1)
-    print(cell_width, cell_height, stamp_width, stamp_height)
 
-    if is_valid:
-        # Placing the stamp entirely within the cell
-        x = ml + col * cell_width + random.randint(0, cell_width - stamp_width)
-        y = y_start + row * cell_height + random.randint(0, cell_height - stamp_height)
-  
-        
+    # Define the symbol and cell boundaries
+    symbol_start_x = ml + col * cell_width
+    symbol_end_x = symbol_start_x + symbol_width
+    cell_end_x = symbol_start_x + cell_width
+
+    # Decide randomly whether to allow overlap
+    allow_overlap = random.choice([True, False])
+
+    if is_valid and allow_overlap:
+        # Max overlap of 20%
+        max_overlap_x = int(stamp_width * 0.1)  # 10% of stamp's width
+        min_x = max(ml, symbol_end_x - max_overlap_x)
+        max_x = min(cell_end_x - stamp_width, symbol_start_x + symbol_width - max_overlap_x)
+        x = random.randint(min_x, max_x)
+    elif is_valid and not allow_overlap:
+        # No overlap area
+        min_x = symbol_end_x
+        max_x = cell_end_x - stamp_width
+        x = random.randint(min_x, max_x) if min_x < max_x else min_x  # Ensure x is within bounds
     else:
+        # For invalid stamps or other scenarios, adjust logic as necessary
         x = ml + col * cell_width + random.randint(-stamp_width // 2, cell_width - stamp_width // 2)
-        y = y_start + row * cell_height + random.randint(-stamp_height // 2, cell_height - stamp_height // 2)
 
+    # Calculate y coordinate within the cell
+    min_y = y_start + row * cell_height
+    max_y = y_start + (row + 1) * cell_height - stamp_height
+    y = random.randint(min_y, max_y)
 
+    # Paste the stamp on the ballot
     ballot.paste(stamp, (x, y), stamp)
-
-     # Calculate the bounding box of the stamp
     stamp_box = [stamp_name, x, y, x + stamp_width, y + stamp_height]
 
     return stamp_box
+
+# def place_stamp(ballot, stamps, y_start, candidates, symbol_size, cell_width, cell_height, rows, columns, margins, is_valid):
+#     """
+#     Place a stamp on the ballot such that it only overlaps the symbol by approximately 20%.
+#     """
+#     mt, mb, ml, mr = margins
+#     stamp, stamp_name = stamps
+#     stamp_width, stamp_height = stamp.size
+    
+#     # Calculate grid and symbol properties
+#     symbol_width, symbol_height = 189, 189
+#     last_row_symbols = candidates % columns if candidates % columns != 0 else columns
+#     actual_rows = math.ceil(candidates / columns)
+    
+#     # Choose a random row and column to place the stamp
+#     row = random.randint(0, actual_rows - 1)
+#     col = random.randint(0, columns - 1)
+    
+#     if is_valid:
+#         # Calculate x and y coordinates for stamp placement
+#         # Ensuring only 20% overlap with the symbol
+#         overlap_factor = 0.2  # 20% overlap
+        
+#         # Calculate the start and end positions of the symbol
+#         symbol_start_x = ml + col * cell_width
+#         symbol_end_x = symbol_start_x + symbol_width
+
+#         # Calculate the minimum x position for the stamp to achieve desired overlap
+#         min_x = symbol_end_x - int(stamp_width * overlap_factor)
+#         max_x = symbol_start_x + symbol_width - int(stamp_width * overlap_factor)
+        
+#         # Ensure the stamp stays within the grid cell boundaries
+#         x = random.randint(min_x, max_x)
+#         y = y_start + row * cell_height + random.randint(0, cell_height - stamp_height)
+#     else:
+#         # For invalid stamps, you might want different randomization or logic
+#         x = ml + col * cell_width + random.randint(-stamp_width // 2, cell_width - stamp_width // 2)
+#         y = y_start + row * cell_height + random.randint(-stamp_height // 2, cell_height - stamp_height // 2)
+
+#     # Paste the stamp onto the ballot
+#     ballot.paste(stamp, (x, y), stamp)
+
+#     # Calculate the bounding box of the stamp
+#     stamp_box = [stamp_name, x, y, x + stamp_width, y + stamp_height]
+
+#     return stamp_box
+
+
+
+# def place_stamp(ballot, stamps, y_start,candidates,symbol_size, cell_width, cell_height, rows, columns, margins, is_valid):
+#     """
+    
+#     """
+#     mt, mb, ml, mr = margins
+#     stamp,  stamp_name = stamps
+#     stamp_width, stamp_height = stamp.size
+#     # y_position = draw_header_box()
+#     # Randomly choose a cell to place stamp in grid cell
+    
+#     last_row_symbols = candidates % columns if candidates % columns != 0 else columns
+    
+#     actual_rows = math.ceil(candidates / columns)  # Actual number of rows needed   
+#     row = random.randint(0, actual_rows - 1)
+#     col = random.randint(0, columns - 1)
+#     print(cell_width, cell_height, stamp_width, stamp_height)
+
+#     if is_valid:
+#         # Placing the stamp entirely within the cell
+#         x = ml + col * cell_width + random.randint(0, cell_width - stamp_width)
+#         y = y_start + row * cell_height + random.randint(0, cell_height - stamp_height)  
+        
+#     else:
+#         x = ml + col * cell_width + random.randint(-stamp_width // 2, cell_width - stamp_width // 2)
+#         y = y_start + row * cell_height + random.randint(-stamp_height // 2, cell_height - stamp_height // 2)
+
+
+#     ballot.paste(stamp, (x, y), stamp)
+
+#      # Calculate the bounding box of the stamp
+#     stamp_box = [stamp_name, x, y, x + stamp_width, y + stamp_height]
+
+#     return stamp_box
 
 
 # def place_stamp(ballot, stamp, y_start, candidates,symbol_size, cell_width, cell_height, rows, columns, margins, is_valid):
@@ -443,14 +575,14 @@ def create_stamped_ballots(symbols, stamp_path, rows, columns, candidates,
 
 
 
-# symbols_train_path = '../../../datasets_symbol/'
-symbols_test_path = '../../../validation_folder' 
+symbols_train_path = '../../../datasets_symbol/actual_symbol/train'
+symbols_test_path = '../../../test_folder' 
 # symbols = load_symbols(symbols_train_path)
 # print(len(symbols))
 
 
 
-stamp_path = '../../../datasets_stamp/valid1/validation_folder/'  # Path to your stamp image
+stamp_path = '../../../datasets_stamp/valid1/test_folder/'  # Path to your stamp image
 symbol_size = (189, 189)  # Symbol size (width, height)
 
 
@@ -464,13 +596,14 @@ print("test")
 
 header = ['image_id','label', 'x1', 'y1', 'x2', 'y2']
 import csv
-with open('../../../validation_set/set5/annotations.csv', 'w', newline='') as file:
+with open('../../../testing_set/set6/annotations.csv', 'w', newline='') as file:
     writer = csv.writer(file) 
     writer.writerow(header)  # Write the header 
 
-    for i in range(1, 200):
+    for i in range(1, 15):
         
-        symbols = load_symbols1(symbols_test_path)
+        # symbols = load_symbols1(symbols_test_path)
+        symbols = load_test_symbols(symbols_train_path)
         print(len(symbols))
         valid_ballot, invalid_ballot, annotations = create_stamped_ballots(symbols, stamp_path,
                                                             7,6 , 42, symbol_size,
@@ -479,7 +612,7 @@ with open('../../../validation_set/set5/annotations.csv', 'w', newline='') as fi
                                                                 margins=(300, 300, 200, 200))
 
         
-        valid_ballot.save(f'../../../validation_set/set5/val/image_{i:04}.jpg')
+        valid_ballot.save(f'../../../testing_set/set6/test/image_{i:04}.jpg')
         # invalid_ballot.save(f'../../../datasets/ballot_datasets/invalid/invalid_{i:04}.jpg')
 
         for symbol_name, *bbox in annotations:

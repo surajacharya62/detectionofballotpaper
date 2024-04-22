@@ -11,40 +11,44 @@ class YoloMetrics():
         true_labels_file = 'true_labels_objeval_format.xlsx'
         pred_labels_file = 'pred_labels_objeval_format.xlsx'
 
-        true_label = pd.read_excel(os.path.join(labels_path, true_labels_file))        
-        df = pd.read_csv(os.path.join('../../../training_set/set5/', 'annotations.csv'))
-        label_to_id = {label: i for i, label in enumerate(df['label'].unique())}
-        sorted_labels = sorted(label_to_id)
-        label_to_id = {label: i for i, label in enumerate(sorted_labels)} 
-        inv_label = {v:k for k,v in label_to_id.items()} 
+        # true_label = pd.read_excel(os.path.join(labels_path, true_labels_file))        
+        # # df = pd.read_csv(os.path.join('../../../../training_set/set6/', 'annotations.csv'))
+        # label_to_id = {label: i for i, label in enumerate(df['label'].unique())}
+        # sorted_labels = sorted(label_to_id)
+        # label_to_id = {label: i for i, label in enumerate(sorted_labels)} 
+        # inv_label = {v:k for k,v in label_to_id.items()} 
        
-        true_labels_df = pd.DataFrame(true_label)
-        true_labels_df['label']= true_labels_df['label'].replace(inv_label)  
-        true_labels_df.to_excel(os.path.join(labels_path, 'true_labels_objeval_format_with_labels.xlsx'))
+        # true_labels_df = pd.DataFrame(true_label)
+        # true_labels_df['label']= true_labels_df['label'].replace(inv_label)  
+        # true_labels_df.to_excel(os.path.join(labels_path, 'true_labels_objeval_format_with_labels.xlsx'))
       
 
-        pred =  pd.read_excel(os.path.join(labels_path, pred_labels_file))
-        preds_df = pd.DataFrame(pred)
+        # pred =  pd.read_excel(os.path.join(labels_path, pred_labels_file))
+        # preds_df = pd.DataFrame(pred)
         
-        true =  pd.read_excel(os.path.join(labels_path, 'true_labels_objeval_format_with_labels.xlsx'))
-        true_labels_df = pd.DataFrame(true)
+        # true =  pd.read_excel(os.path.join(labels_path, 'true_labels_objeval_format_with_labels.xlsx'))
+        # true_labels_df = pd.DataFrame(true)
 
-        infer_df = im.get_inference_metrics_from_df(preds_df, true_labels_df)
-        infer_df.to_excel(os.path.join(labels_path, 'infer_df_yolo.xlsx'))
+        # infer_df = im.get_inference_metrics_from_df(preds_df, true_labels_df)
+        # infer_df.to_excel(os.path.join(labels_path, 'infer_df_yolo.xlsx'))
 
-        class_summary_df = im.summarise_inference_metrics(infer_df)
+        class_summary = pd.read_excel('../../../../yolo_files/total_comparisons_normalized.xlsx')
+
+        class_summary_df = im.summarise_inference_metrics(class_summary)
         class_summary_df.to_excel(os.path.join(labels_path, 'class_summary_df_yolo.xlsx'))
 
-    
-    def generate_separate_precision_recall_curves(self, pred_path):
+        
 
-        file_name = 'infer_df_yolo.xlsx'
-        path = os.path.join('../../../yolo_files/', file_name)
+    
+    def generate_separate_precision_recall_curves(self, dataf):
+
+        file_name = 'total_comparisons_normalized.xlsx'
+        path = os.path.join('../../../../yolo_files/', file_name)
         df = pd.read_excel(path)
-        df = pd.DataFrame(df) 
+        # df = pd.DataFrame(df) 
         unique_classes = df['class'].unique()
         classes = sorted(unique_classes)
-        n_classes = 43       
+        n_classes = 44       
         n_cols = 5  # For example, 3 columns
         n_rows = (n_classes + n_cols - 1) // n_cols  # Calculate rows needed
         
@@ -90,13 +94,13 @@ class YoloMetrics():
             plt.tick_params(axis='both', which='major', labelsize=5) 
         # plt.xticks(rotation=45) 
         plt.tight_layout()
-        plt.savefig(f'../../../outputdir/YoloMetrics.png', bbox_inches='tight', pad_inches=0, dpi=300)  
+        plt.savefig(f'../../../../outputdir/YoloMetrics.png', bbox_inches='tight', pad_inches=0, dpi=300)  
         # plt.subplots_adjust(bottom=0.3) # Adjust subplots to fit in the figure area
         # plt.show()
     
     def call_metrics(self, file_path):
         
-        f1_micro_data = pd.read_excel(os.path.join(file_path, 'infer_df_yolo.xlsx')) 
+        f1_micro_data = pd.read_excel(os.path.join(file_path, 'total_comparisons_normalized.xlsx')) 
         df = pd.DataFrame(f1_micro_data)     
 
         ##-----------------Precision Recall Curve Visualization
