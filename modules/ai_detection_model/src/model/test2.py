@@ -97,7 +97,8 @@ grid_cells = [(200, 1660, 578, 1849), (578, 1660, 956, 1849), (956, 1660, 1334, 
 
 
 # image_0005.jpg # Stamp bounding box [x1, y1, x2, y2]
-stamp_box = [1151.8798, 2711.558 , 1275.8987, 2863.8665]
+# stamp_box = [1151.8798, 2711.558 , 1275.8987, 2863.8665]
+stamp_box = [2120,        2147,        2309,        2296]
 
 margins = (1560, 300, 200, 200)  # top, bottom, left, right margins
 ballot_size = (2668, 3413)  # width, height of the ballot paper

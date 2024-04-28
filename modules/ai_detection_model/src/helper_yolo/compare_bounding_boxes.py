@@ -189,13 +189,165 @@ class CompareBoundingBox:
 
         return iou
 
+    # def compare_labels_with_bboxes(self, predicted_labels, true_labels, predicted_bboxes, true_bboxes, scores, image_name,label_id, iou_threshold=0.5):
+    #     matches1 = []
+    #     matches2 = []
+    #     matches3 = []  
+    #     matches4 = [] 
+    #     inv_label = {v:k for k,v in label_id.items()}  
+    #     for pred_label, pred_box,score in zip(predicted_labels, predicted_bboxes, scores):
+    #         best_iou = 0
+    #         value_checked = []
+    #         best_match = {'true_label': None, 'iou': 0, 'valid': False}
+    #         # print(true_labels, true_bboxes)
+    #         # print(true_labels[0])
+    #         # true_labels = true_labels.cpu().numpy()
+    #         # true_bboxes = true_bboxes.cpu().numpy()
+    #         # print(true_labels)
+    #         pred_label1 = label_id.get(pred_label, "unkown")
+
+
+    #         if pred_label1 in true_labels:
+    #             extracted_labels = [(true_label, box) for true_label, box in zip(true_labels, true_bboxes) if true_label == pred_label1]
+    #             # print(len(extracted_labels))
+    #             if len(extracted_labels) > 1: 
+    #                 for true_label, true_box in extracted_labels:
+    #                     print(pred_box, true_box)
+    #                     iou = self.calculate_iou(pred_box, true_box) 
+    #                     # print(true_label)                          
+                        
+    #                     true_label = inv_label.get(true_label, 'unkown')
+    #                     # pred_label = inv_label.get(pred_label, 'unkown')
+    #                     # if iou >= iou_threshold :
+    #                         # best_iou = iou
+    #                     best_match = {'image_name':image_name,
+    #                                    'true_label': true_label.item(),
+    #                                    'true_index': [true_bboxes.index(true_box) if true_box in true_bboxes else "no index found" ] , 
+    #                                      'pred_index': [predicted_labels.index(pred_label) if pred_label in predicted_labels else 'no index found'],
+    #                                      'class': pred_label,
+    #                                      'Confidence': score,
+    #                                        'iou': iou.item(), 
+    #                                        'TP':  1 if iou > 0.5 else 0, 
+    #                                        'FP': 1 if iou < 0.5 else 0,
+    #                                        'FN':0}
+    #                     value_checked.append(best_match)
+    #                     # print(value_checked)
+                    
+
+    #                 if value_checked:                
+    #                     matches_with_positive_iou = [match for match in value_checked if match['iou'] > 0]                   
+    #                     if matches_with_positive_iou:
+    #                         matches1.extend(matches_with_positive_iou)
+    #                     else:
+    #                         # If no matches with positive IoU, optionally add a single match with iou == 0
+    #                         # Example: Add the first match or define another criterion
+    #                         # matches1.append(value_checked[0])
+    #                         unique_match_found = False
+    #                         for match in value_checked:
+    #                             if match['true_index'] not in [m['true_index'] for m in matches1]:
+    #                                 matches1.append(match)
+    #                                 unique_match_found = True
+    #                                 # break  # Stop after finding the first unique match
+                            
+    #                         # if not unique_match_found and value_checked:
+    #                         #     # Optionally, add the first entry if no unique match is found
+    #                         #     # This is a fallback and might not be necessary depending on your requirements
+    #                         #     matches1.append(value_checked[0])
+                    
+    #             else:
+    #                 # print(extracted_labels)
+    #                 for true_label1, true_box1 in extracted_labels:
+    #                     # print(pred_box, true_box1)
+    #                     iou = self.calculate_iou(pred_box, true_box1)
+    #                     # print(iou, pred_label)
+                        
+    #                     # if iou >= iou_threshold :
+    #                         # best_iou = iou
+    #                     # for true_box in true_bboxes:                           
+    #                     # print(true_box1 in true_bboxes )
+    #                         # print(true_bboxes)
+    #                     # true_label = inv_label.get(true_label1,'unkown')
+    #                     # # pred_label = inv_label.get(pred_label,'unkown')
+    #                     true_index = None
+    #                     for index, box in enumerate(true_bboxes):
+    #                         if np.array_equal(true_box1, box):  # Assuming true_box1 is a numpy array
+    #                             true_index = index
+    #                             break
+    #                     # print(true_index)
+    #                     best_match = {'image_name':image_name,
+    #                                   'true_label': true_label1.item(),
+    #                                   'true_index': true_index , 
+    #                                   'class':pred_label,
+    #                                   'Confidence': score,
+    #                                   'pred_index': [predicted_labels.index(pred_label) if pred_label in predicted_labels else 'no index found'], 
+    #                                   'iou': float(iou), 
+    #                                   'TP': 1 if iou > 0.5 else 0, 
+    #                                   'FP': 1 if iou < 0.5 else 0,
+    #                                   'FN':0}
+                    
+    #                     matches2.append(best_match)
+
+    #         else:
+    #             # true_label = inv_label.get(true_label,'unkown')
+    #             # pred_label = inv_label.get(pred_label,'unkown')
+    #             best_match = {'image_name':image_name,
+    #                           'true_label': 'nan', 
+    #                           'true_index': 'nan' ,
+    #                            'class':pred_label,
+    #                            'Confidence': score,
+    #                            'pred_index': [predicted_labels.index(pred_label) if pred_label in predicted_labels else 'no index found'],
+    #                              'iou': 0,
+    #                              'TP':0, 
+    #                              'FP': 1,
+    #                              'FN':0}
+                    
+    #             matches3.append(best_match)
+
+    #             # print
+
+    #     pred_labels = [label_id.get(label) for label in predicted_labels]
+        
+    #     true_labels1 = true_labels.tolist()
+
+    #     # p_list = []
+    #     # for p_label, score in pred_labels:
+    #     #     p_list.append(p_label)
+        
+    #     non_object_detected = set(true_labels1) - set(pred_labels)
+    #     # print(non_object_detected)
+        
+
+    #     for label in non_object_detected:
+            
+    #         pred_label1 = inv_label.get(label)
+
+    #         # true_label = inv_label.get(true_label,'unkown')
+    #         # pred_label = inv_label.get(object,'unkown')
+    #         best_match = {'image_name':image_name,
+    #                         'true_label': 'nan', 
+    #                         'true_index': 'nan' ,
+    #                         'class':pred_label1,
+    #                         'Confidence': 0,
+    #                         'pred_index': 'nan',
+    #                             'iou': 0,
+    #                             'TP':0, 
+    #                             'FP': 0,
+    #                             'FN':1}
+                
+    #         matches4.append(best_match)
+
+        
+    #     return matches1, matches2, matches3, matches4
+
+#---------------------------------------------------------------
+
     def compare_labels_with_bboxes(self, predicted_labels, true_labels, predicted_bboxes, true_bboxes, scores, image_name,label_id, iou_threshold=0.5):
         matches1 = []
         matches2 = []
         matches3 = []  
         matches4 = [] 
         inv_label = {v:k for k,v in label_id.items()}  
-        for pred_label, pred_box,score in zip(predicted_labels, predicted_bboxes, scores):
+        for tlabel, tbox in zip(true_labels, true_bboxes):
             best_iou = 0
             value_checked = []
             best_match = {'true_label': None, 'iou': 0, 'valid': False}
@@ -204,106 +356,55 @@ class CompareBoundingBox:
             # true_labels = true_labels.cpu().numpy()
             # true_bboxes = true_bboxes.cpu().numpy()
             # print(true_labels)
-            pred_label1 = label_id.get(pred_label, "unkown")
+            # tlabel = label_id.get(tlabel, "unkown")
+            tlabel = int(tlabel.item())
+            # print(tlabel, "tlabel")
 
+            for plabel,pbox,score in zip(predicted_labels, predicted_bboxes, scores):
+               
+                if isinstance(tbox, torch.Tensor):
+                    tbox_list = tbox.tolist()  # Convert to list
+                else:
+                    tbox_list = tbox 
 
-            if pred_label1 in true_labels:
-                extracted_labels = [(true_label, box) for true_label, box in zip(true_labels, true_bboxes) if true_label == pred_label1]
-                # print(len(extracted_labels))
-                if len(extracted_labels) > 1: 
-                    for true_label, true_box in extracted_labels:
-                        # print(pred_box, true_box)
-                        iou = self.calculate_iou(pred_box, true_box) 
-                        # print(true_label)                          
-                        
-                        true_label = inv_label.get(true_label, 'unkown')
+                # print("tbox_list:", tbox_list)
+                iou = self.calculate_iou(pbox, tbox_list) 
+                # print(plabel)
+                # print(inv_label)
+                plabel = label_id.get(plabel, 'unkown')
+                # print(plabel,tlabel, 'plabel', pbox,tbox)
+
+                if iou > iou_threshold and tlabel == plabel:
+
+                    
                         # pred_label = inv_label.get(pred_label, 'unkown')
                         # if iou >= iou_threshold :
                             # best_iou = iou
-                        best_match = {'image_name':image_name,
-                                       'true_label': true_label.item(),
-                                       'true_index': [true_bboxes.index(true_box) if true_box in true_bboxes else "no index found" ] , 
-                                         'pred_index': [predicted_labels.index(pred_label) if pred_label in predicted_labels else 'no index found'],
-                                         'class': pred_label,
-                                         'Confidence': score,
-                                           'iou': iou.item(), 
-                                           'TP':  1 if iou > 0.5 else 0, 
-                                           'FP': 1 if iou < 0.5 else 0,
-                                           'FN':0}
-                        value_checked.append(best_match)
-                        # print(value_checked)
-                    
+                    best_match = {'image_name':image_name,
+                                    'true_label':inv_label.get(tlabel,'unknown'),
+                                    'pred_label':inv_label.get(plabel,'unknown'),                                 
+                                    'class': inv_label.get(tlabel,'known'),
+                                    'Confidence': score,
+                                    'iou': iou, 
+                                    'TP':  1, 
+                                    'FP': 0,
+                                    'FN':0}
+                    matches1.append(best_match)
+                
+                elif iou > iou_threshold and tlabel != plabel:
 
-                    if value_checked:                
-                        matches_with_positive_iou = [match for match in value_checked if match['iou'] > 0]                   
-                        if matches_with_positive_iou:
-                            matches1.extend(matches_with_positive_iou)
-                        else:
-                            # If no matches with positive IoU, optionally add a single match with iou == 0
-                            # Example: Add the first match or define another criterion
-                            # matches1.append(value_checked[0])
-                            unique_match_found = False
-                            for match in value_checked:
-                                if match['true_index'] not in [m['true_index'] for m in matches1]:
-                                    matches1.append(match)
-                                    unique_match_found = True
-                                    # break  # Stop after finding the first unique match
-                            
-                            # if not unique_match_found and value_checked:
-                            #     # Optionally, add the first entry if no unique match is found
-                            #     # This is a fallback and might not be necessary depending on your requirements
-                            #     matches1.append(value_checked[0])
-                    
-                else:
-                    for true_label1, true_box1 in extracted_labels:
-                        # print(pred_box, true_box)
-                        iou = self.calculate_iou(pred_box, true_box1)
-                        # print(true_label,true_box)
-                        
-                        # if iou >= iou_threshold :
-                            # best_iou = iou
-                        # for true_box in true_bboxes:                           
-                        # print(true_box1 in true_bboxes )
-                            # print(true_bboxes)
-                        # true_label = inv_label.get(true_label1,'unkown')
-                        # # pred_label = inv_label.get(pred_label,'unkown')
-                        true_index = None
-                        for index, box in enumerate(true_bboxes):
-                            if np.array_equal(true_box1, box):  # Assuming true_box1 is a numpy array
-                                true_index = index
-                                break
-                        # print(true_index)
-                        best_match = {'image_name':image_name,
-                                      'true_label': true_label1.item(),
-                                      'true_index': true_index , 
-                                      'class':pred_label,
-                                      'Confidence': score,
-                                      'pred_index': [predicted_labels.index(pred_label) if pred_label in predicted_labels else 'no index found'], 
-                                      'iou': float(iou), 
-                                      'TP': 1 if iou > 0.5 else 0, 
-                                      'FP': 1 if iou < 0.5 else 0,
-                                      'FN':0}
-                    
-                        matches2.append(best_match)
-
-            else:
-                # true_label = inv_label.get(true_label,'unkown')
-                # pred_label = inv_label.get(pred_label,'unkown')
-                best_match = {'image_name':image_name,
-                              'true_label': 'nan', 
-                              'true_index': 'nan' ,
-                               'class':pred_label,
-                               'Confidence': score,
-                               'pred_index': [predicted_labels.index(pred_label) if pred_label in predicted_labels else 'no index found'],
-                                 'iou': 0,
-                                 'TP':0, 
-                                 'FP': 1,
-                                 'FN':0}
-                    
-                matches3.append(best_match)
-
-                # print
-
+                    best_match = {'image_name':image_name,
+                                    'true_label':inv_label.get(tlabel,'unknown'),
+                                    'pred_label':inv_label.get(plabel,'unknown'),                                 
+                                    'class': inv_label.get(tlabel,'known'),
+                                    'Confidence': score,
+                                    'iou': iou, 
+                                    'TP':  0, 
+                                    'FP': 1,
+                                    'FN':0}
+                    matches2.append(best_match)
+                
+               
         pred_labels = [label_id.get(label) for label in predicted_labels]
         
         true_labels1 = true_labels.tolist()
@@ -313,7 +414,7 @@ class CompareBoundingBox:
         #     p_list.append(p_label)
         
         non_object_detected = set(true_labels1) - set(pred_labels)
-        print(non_object_detected)
+        # print(non_object_detected)
         
 
         for label in non_object_detected:
@@ -323,11 +424,12 @@ class CompareBoundingBox:
             # true_label = inv_label.get(true_label,'unkown')
             # pred_label = inv_label.get(object,'unkown')
             best_match = {'image_name':image_name,
-                            'true_label': 'nan', 
-                            'true_index': 'nan' ,
-                            'class':pred_label1,
+                             'true_label': inv_label.get(label,'unkown'),
+                             'pred_label':'Not detected', 
+                           
+                            'class':inv_label.get(label,'unknown'),
                             'Confidence': 0,
-                            'pred_index': 'nan',
+                            
                                 'iou': 0,
                                 'TP':0, 
                                 'FP': 0,
@@ -336,7 +438,11 @@ class CompareBoundingBox:
             matches4.append(best_match)
 
         
-        return matches1, matches2, matches3, matches4
+        return matches1, matches2, matches3, matches4     
+
+
+
+
 
 # # Example usage
 # # predicted_labels = [20, 31]

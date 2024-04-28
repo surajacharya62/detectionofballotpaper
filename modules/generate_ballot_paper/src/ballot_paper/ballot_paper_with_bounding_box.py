@@ -575,7 +575,7 @@ def create_stamped_ballots(symbols, stamp_path, rows, columns, candidates,
 
 
 
-symbols_train_path = '../../../datasets_symbol/actual_symbol/train'
+# symbols_train_path = '../../../datasets_symbol/actual_symbol/train'
 symbols_test_path = '../../../test_folder' 
 # symbols = load_symbols(symbols_train_path)
 # print(len(symbols))
@@ -600,10 +600,10 @@ with open('../../../testing_set/set6/annotations.csv', 'w', newline='') as file:
     writer = csv.writer(file) 
     writer.writerow(header)  # Write the header 
 
-    for i in range(1, 15):
+    for i in range(1, 100):
         
-        # symbols = load_symbols1(symbols_test_path)
-        symbols = load_test_symbols(symbols_train_path)
+        symbols = load_symbols1(symbols_test_path)
+        # symbols = load_test_symbols(symbols_train_path)
         print(len(symbols))
         valid_ballot, invalid_ballot, annotations = create_stamped_ballots(symbols, stamp_path,
                                                             7,6 , 42, symbol_size,

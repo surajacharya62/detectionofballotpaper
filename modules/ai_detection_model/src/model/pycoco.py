@@ -98,9 +98,10 @@ import json
 
 # Load the Excel file into a DataFrame
 true_labels_path = '../../../faster_rcnn_files/true_labels_df.xlsx'
-# # pred_labels_path = '../../../faster_rcnn_files/preds_df.xlsx'
+# pred_labels_path = '../../../faster_rcnn_files/preds_df.xlsx'
 # pred_labels_df = pd.read_excel(true_labels_path)# Adjust this to the path of your Excel file
 df_true_labels = pd.read_excel(true_labels_path)  # Adjust sheet name as necessary
+# print(df_true_labels.head(5))
 
 # A function to convert bounding boxes
 def convert_bbox_to_coco(xmin, ymin, xmax, ymax):
@@ -113,10 +114,16 @@ def process_true_labels(df):
     images = []
     annotations = []
     category_ids = set()
+
+    # Create 'image_id' from 'image_name' if missing
+    if 'image_id' not in df.columns:
+        df['image_id'] = df['image_name'].apply(lambda x: int(x.split('_')[1].split('.')[0]) - 1)
+
     
     for idx, row in df.iterrows():
-        image_id = row['id']
+        image_id = int(row['image_id'])
         category_id = row['category_id']
+        # score = row['score']
         
         # Add to images list if not already added
         if not any(img['id'] == image_id for img in images):
@@ -130,10 +137,11 @@ def process_true_labels(df):
         bbox_coco = convert_bbox_to_coco(row['xmin'], row['ymin'], row['xmax'], row['ymax'])
         annotations.append({
             "id": idx,
-            "image_id": image_id,
+            "image_id": int(image_id),
             "category_id": category_id,
             "bbox": bbox_coco,
-            "area": bbox_coco[2] * bbox_coco[3],  # width * height
+            "area": bbox_coco[2] * bbox_coco[3], 
+            #  "score": score,# width * height
             "iscrowd": 0,
         })
         
@@ -155,7 +163,15 @@ coco_format = {
     "categories": categories,
 }
 
+coco_format1 = [annotations]
+    
+
+
 # Write to JSON file
-with open('true_labels_coco_format.json', 'w') as f:
+with open('coco_true.json', 'w') as f:
     json.dump(coco_format, f, indent=4)
+
+
+
+
 

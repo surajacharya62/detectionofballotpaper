@@ -12,6 +12,7 @@ from helper_yolo.yolo_normalize import YoloNormalize
 from model.metrics_yolo import YoloMetrics
 from vote_validation.validate_vote import ValidateVote
 from helper_yolo.data_for_vote import CreateDataForVote
+import argparse
 
 obj_visualize = YoloVisualize()
 obj_normalize = YoloNormalize()
@@ -47,58 +48,113 @@ class ModelYolo():
     #     # # Exporting the model
     #     # model.export(format='onnx')
 
-    def predict(self, model_path, test_set, pred_labels_save_path):
+    def predict(self, model_path, test_set, pred_labels_save_path, image_name, is_single_image):
         
-        model = YOLO(model_path, test_set)
-        results = model(test_set, save_txt=None)
-        # Process results list
-        # for result in results:
-        #     boxes = result.boxes
-        #     masks = result.masks  # Masks object for segmentation masks outputs
-        #     keypoints = result.keypoints  # Keypoints object for pose outputs
-        #     scores = result.probs  # Probs object for classification outputs   
-        #     labels = result.names    
-        #     result.show()  # display to screen    
-        #     scores = result.probs  # Assuming this gives you a list of probabilities
-        #     result.save(filename='image_0001.jpg')
-        #     Find the index of the max probability to get the predicted class index
-        #         print(dir(result))
-        # result = results.tojson()
+        if is_single_image:
+            model = YOLO(model_path, os.path.join(test_set, image_name))
+            results = model(os.path.join(test_set, image_name), save_txt=None)
+            # for result in results:
+            #     boxes = result.boxes
+            #     masks = result.masks  # Masks object for segmentation masks outputs
+            #     keypoints = result.keypoints  # Keypoints object for pose outputs
+            #     scores = result.probs  # Probs object for classification outputs   
+            #     labels = result.names    
+            #     result.show()  # display to screen    
+            #     scores = result.probs  # Assuming this gives you a list of probabilities
+            #     result.save(filename='image_0001.jpg')
+            #     Find the index of the max probability to get the predicted class index
+            #         print(dir(result))
+            # result = results.tojson()
 
-        detection_list = []  # Changed variable name from 'list' to 'detection_list'
-        for result in results:
-            boxes = result.boxes.cpu().numpy()
-            for box in boxes:
-                cls = int(box.cls[0])
-                path = result.path
-                class_name = model.names[cls]
-                conf = int(box.conf[0] * 100)
-                bx = box.xywh.tolist()
-                df = pd.DataFrame({'image_name': path.split("\\")[-1],  # Changed index 15 to -1 for general case
-                                'label': class_name,
-                                'class_id': cls,
-                                'score': conf / 100,
-                                'box_coord': [bx]})  # Ensuring bx is inside a list
-                detection_list.append(df)
-        # Concatenate all DataFrames in the list into a single DataFrame
-        df = pd.concat(detection_list)
-        file_name = 'yolo_predicted_labels.csv' 
-        # Save the concatenated DataFrame to a CSV file        
-        df.to_csv(os.path.join(pred_labels_save_path, file_name), index=False)
+            detection_list = []  # Changed variable name from 'list' to 'detection_list'
+            for result in results:
+                boxes = result.boxes.cpu().numpy()
+                for box in boxes:
+                    cls = int(box.cls[0])
+                    path = result.path
+                    class_name = model.names[cls]
+                    conf = int(box.conf[0] * 100)
+                    bx = box.xywh.tolist()
+                    df = pd.DataFrame({'image_name': path.split("\\")[-1],  # Changed index 15 to -1 for general case
+                                    'label': class_name,
+                                    'class_id': cls,
+                                    'score': conf / 100,
+                                    'box_coord': [bx]})  # Ensuring bx is inside a list
+                    detection_list.append(df)
+            # Concatenate all DataFrames in the list into a single DataFrame
+            df = pd.concat(detection_list)
+            file_name = 'yolo_predicted_labels.csv' 
+            # Save the concatenated DataFrame to a CSV file        
+            df.to_csv(os.path.join(pred_labels_save_path, file_name), index=False)
+        else:
+
+            model = YOLO(model_path, test_set)
+            results = model(test_set, save_txt=None)
+            # Process results list
+            # for result in results:
+            #     boxes = result.boxes
+            #     masks = result.masks  # Masks object for segmentation masks outputs
+            #     keypoints = result.keypoints  # Keypoints object for pose outputs
+            #     scores = result.probs  # Probs object for classification outputs   
+            #     labels = result.names    
+            #     result.show()  # display to screen    
+            #     scores = result.probs  # Assuming this gives you a list of probabilities
+            #     result.save(filename='image_0001.jpg')
+            #     Find the index of the max probability to get the predicted class index
+            #         print(dir(result))
+            # result = results.tojson()
+
+            detection_list = []  # Changed variable name from 'list' to 'detection_list'
+            for result in results:
+                boxes = result.boxes.cpu().numpy()
+                for box in boxes:
+                    cls = int(box.cls[0])
+                    path = result.path
+                    class_name = model.names[cls]
+                    conf = int(box.conf[0] * 100)
+                    bx = box.xywh.tolist()
+                    df = pd.DataFrame({'image_name': path.split("\\")[-1],  # Changed index 15 to -1 for general case
+                                    'label': class_name,
+                                    'class_id': cls,
+                                    'score': conf / 100,
+                                    'box_coord': [bx]})  # Ensuring bx is inside a list
+                    detection_list.append(df)
+            # Concatenate all DataFrames in the list into a single DataFrame
+            df = pd.concat(detection_list)
+            file_name = 'yolo_predicted_labels.csv' 
+            # Save the concatenated DataFrame to a CSV file        
+            df.to_csv(os.path.join(pred_labels_save_path, file_name), index=False)
+
 
 
 model_path = './runs/detect/train/weights/best.pt'
 test_set = '../../../../testing_set/set6/test/' 
 pred_labels_path = '../../../../yolo_files/'
+parser = argparse.ArgumentParser(description="Process some integers.")
+parser.add_argument('--image_name', type=str, help='image name')
+parser.add_argument('--singleORmulti_images', type=str, help='singe multi images')
+parser.add_argument('--image_path', type=str, help='image path')
+args = parser.parse_args()
+annotations_path = '../../../testing_set/set6/'
+if args.singleORmulti_images == 'single':
+    test_image_path = args.image_path
+    is_single_image = True
+    image_name = args.image_name   
+    print(is_single_image)
+
+else:
+    is_single_image = False
+    image_name = None    
+    test_image_path = args.image_path
 
 
 #------------------------------For prediction-------------------------------------
 obj_model = ModelYolo()
-obj_model.predict(model_path, test_set, pred_labels_path)
+obj_model.predict(model_path, test_set, pred_labels_path, image_name, is_single_image)
 
 
 #----------For visualizing the predictions-----------------------------------------
-# obj_visualize.visualize_test_images(test_set, pred_labels_path)
+obj_visualize.visualize_test_images(test_set, pred_labels_path,)
 
 
 #--------For normalizing the predicted labels-----------------------
@@ -112,7 +168,7 @@ obj_normalize.pred_labels_conerized_normalized(output_save_path)
 
 #----------------For vote validation------------------------------------------------
 test_path = '../../../../testing_set/set6/'
-obj_data_for_vote.data(pred_labels_path, test_path)
+obj_data_for_vote.data(pred_labels_path, test_image_path, image_name, is_single_image)
 
 #---------------For metrics----------------------------------------------------
 

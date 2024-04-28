@@ -28,7 +28,7 @@ class ReshapeData():
         # Save the DataFrame to a new Excel file
         output_path = '../../../faster_rcnn_files/total_comparisons_normalized.xlsx'
         result_df.to_excel(output_path, index=False)
-        print(f"Data saved to {output_path}")
+        # print(f"Data saved to {output_path}")
 
 
 

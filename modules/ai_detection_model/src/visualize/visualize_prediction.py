@@ -46,12 +46,20 @@ class VisualizePrediction():
                 class_name = id_to_label.get(label_id, 'Unknown') 
                 x1, y1, x2, y2 = box1 
 
-                rect = patches.Rectangle((x1, y1), x2-x1, y2-y1, linewidth=0.5, edgecolor='r', facecolor='none')
-                ax.add_patch(rect) 
+                if label_id == 39 or label_id == 14:
+
+                    rect = patches.Rectangle((x1, y1), x2-x1, y2-y1, linewidth=0.5, edgecolor='blue', facecolor='none')
+                    ax.text(x1, y1, class_name, color='blue', fontsize=8) 
+                    ax.add_patch(rect) 
+                else:
+                    rect = patches.Rectangle((x1, y1), x2-x1, y2-y1, linewidth=0.5, edgecolor='r', facecolor='none')
+                    ax.text(x1, y1, class_name, color='red', fontsize=7) 
+                    ax.add_patch(rect) 
+
 
                 # Add label text
                 # label_text = f"{label}"  # Replace `label` with a mapping to the actual class name if you have one
-                ax.text(x1, y1, class_name, color='red', fontsize=4)             
+                            
          
             plt.axis('off')  # Optional: Remove axes for cleaner visualization
             plt.savefig(f'../../../output/visualization/faster_rcnn/{image_name}1.png', bbox_inches='tight', pad_inches=0, dpi=300)           
@@ -61,11 +69,11 @@ class VisualizePrediction():
           
     def visualize_train_set(self, train_labels, label_to_id):
            
-            image = train_labels[0]
-            boxes = train_labels[3]['boxes'] 
-            labels = train_labels[3]['labels']
+            image = train_labels[0][0]
+            boxes = train_labels[0][3]['boxes'] 
+            labels = train_labels[0][3]['labels']
             # scores = train_labels[1]['scores']
-            image_name = train_labels[2]
+            image_name = train_labels[0][2]
             img_np = image.permute(1, 2, 0).numpy()         
             id_to_label = {value: key for key, value in label_to_id.items()}
             fig, ax = plt.subplots(1) 
@@ -85,12 +93,12 @@ class VisualizePrediction():
                 class_name = id_to_label.get(label_id, 'Unknown')
                 x1, y1, x2, y2 = box1
 
-                rect = patches.Rectangle((x1, y1), x2-x1, y2-y1, linewidth=0.5, edgecolor='r', facecolor='none')
+                rect = patches.Rectangle((x1, y1), x2-x1, y2-y1, linewidth=0.5, edgecolor='blue', facecolor='none')
                 ax.add_patch(rect)
 
                 # Add label text
                 # label_text = f"{label}"  # Replace `label` with a mapping to the actual class name if you have one
-                ax.text(x1, y1, class_name, color='blue', fontsize=7) 
+                ax.text(x1, y1, class_name, color='blue', fontsize=9) 
             
             plt.axis('off')  # Optional: Remove axes for cleaner visualization
             # plt.savefig(f'../../../outputdir/{image_name}.png', bbox_inches='tight', pad_inches=0, dpi=300)  

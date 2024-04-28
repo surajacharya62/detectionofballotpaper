@@ -18,7 +18,7 @@ from torch.utils.data import DataLoader
 from visualize.visualize_prediction import VisualizePrediction
 from vote_validation.validate_vote import ValidateVote
 from model.metrics import Metrics
-from model.test import CompareBoundingBox
+from model.compare_bounding_boxes_faster import CompareBoundingBox
 from model.test1 import ReshapeData
 
 import warnings
@@ -29,39 +29,39 @@ visualize = VisualizePrediction()
 object_compare = CompareBoundingBox()
 obj_reshape = ReshapeData()
 
+start_time = time.time()
+# class ElectoralSymbolTrainDataset(Dataset):
+#     def __init__(self, image_path, train_or_test_path, label, transforms):
+#         self.image_path = image_path
+#         self.train_or_test_path = train_or_test_path
+#         self.transforms = transforms
+#         self.label_to_id = label
+#         # if len(os.listdir(os.path.join(image_path, train_or_test_path))
+#         self.df = pd.read_csv(os.path.join(image_path, 'annotations.csv'))
+#         self.imgs_list = sorted(os.listdir(os.path.join(image_path, train_or_test_path)))
 
-class ElectoralSymbolTrainDataset(Dataset):
-    def __init__(self, image_path, train_or_test_path, label, transforms):
-        self.image_path = image_path
-        self.train_or_test_path = train_or_test_path
-        self.transforms = transforms
-        self.label_to_id = label
-        # if len(os.listdir(os.path.join(image_path, train_or_test_path))
-        self.df = pd.read_csv(os.path.join(image_path, 'annotations.csv'))
-        self.imgs_list = sorted(os.listdir(os.path.join(image_path, train_or_test_path)))
-
-    def __getitem__(self, idx):
-        img_name = self.imgs_list[idx]
-        img_path = os.path.join(self.image_path, self.train_or_test_path, img_name)
-        img = Image.open(img_path).convert('RGB')      
-        filtered_rows = self.df[self.df['image_id'] == img_name]
-        boxes = filtered_rows[['x1', 'y1', 'x2', 'y2']].values.astype('float32')
-        labels = filtered_rows['label'].apply(lambda x: self.label_to_id[x]).values       
-        boxes = torch.as_tensor(boxes, dtype=torch.float32)
-        labels = torch.as_tensor(labels, dtype=torch.int64)
-        image_id = torch.tensor(idx)
-        area = (boxes[:, 2] - boxes[:, 0]) * (boxes[:, 3] - boxes[:, 1])      
-        iscrowd = torch.zeros((len(boxes),), dtype=torch.int64)
-        target = {'boxes': boxes, 'labels': labels, 'image_id': image_id, 'area': area, 'iscrowd':iscrowd}
+#     def __getitem__(self, idx):
+#         img_name = self.imgs_list[idx]
+#         img_path = os.path.join(self.image_path, self.train_or_test_path, img_name)
+#         img = Image.open(img_path).convert('RGB')      
+#         filtered_rows = self.df[self.df['image_id'] == img_name]
+#         boxes = filtered_rows[['x1', 'y1', 'x2', 'y2']].values.astype('float32')
+#         labels = filtered_rows['label'].apply(lambda x: self.label_to_id[x]).values       
+#         boxes = torch.as_tensor(boxes, dtype=torch.float32)
+#         labels = torch.as_tensor(labels, dtype=torch.int64)
+#         image_id = torch.tensor(idx)
+#         area = (boxes[:, 2] - boxes[:, 0]) * (boxes[:, 3] - boxes[:, 1])      
+#         iscrowd = torch.zeros((len(boxes),), dtype=torch.int64)
+#         target = {'boxes': boxes, 'labels': labels, 'image_id': image_id, 'area': area, 'iscrowd':iscrowd}
 
        
-        if self.transforms is not None:           
-            img = self.transforms(img)          
+#         if self.transforms is not None:           
+#             img = self.transforms(img)          
 
-        return img, image_id, img_name, target
+#         return img, image_id, img_name, target
 
-    def __len__(self):
-        return len(self.imgs_list)
+#     def __len__(self):
+#         return len(self.imgs_list)
 
 
 class ElectoralSymbolDataset(Dataset):
@@ -84,9 +84,11 @@ class ElectoralSymbolDataset(Dataset):
                 # If annotations for a single image are to be handled differently
                 raise FileNotFoundError("Annotations file not found for the single image mode.")
         else:
+            
             # Handle directory case
             self.df = pd.read_csv(os.path.join(self.annotation_path, 'annotations.csv'))
             self.imgs_list = sorted(os.listdir(image_path))
+            print("Length of dataset:", len(self.imgs_list)) 
 
     def __getitem__(self, idx):
         img_name = self.imgs_list[idx]
@@ -139,21 +141,21 @@ def get_transform(train):
     return transforms
 
 
-class UnlabeledTestDataset(Dataset):
-    def __init__(self, image_dir, transform=None):
-        self.image_dir = image_dir
-        self.transform = transform
-        self.images = os.listdir(image_dir)
+# class UnlabeledTestDataset(Dataset):
+#     def __init__(self, image_dir, transform=None):
+#         self.image_dir = image_dir
+#         self.transform = transform
+#         self.images = os.listdir(image_dir)
 
-    def __len__(self):
-        return len(self.images)
+#     def __len__(self):
+#         return len(self.images)
 
-    def __getitem__(self, idx):
-        image_path = os.path.join(self.image_dir, self.images[idx])
-        image = Image.open(image_path).convert("RGB")
-        if self.transform:
-            image = self.transform(image)
-        return image 
+#     def __getitem__(self, idx):
+#         image_path = os.path.join(self.image_dir, self.images[idx])
+#         image = Image.open(image_path).convert("RGB")
+#         if self.transform:
+#             image = self.transform(image)
+#         return image 
     
 
 def collate_fn(batch):
@@ -168,8 +170,8 @@ parser.add_argument('--image_path', type=str, help='image path')
 args = parser.parse_args()
 
 
-image_path = '../../../training_set/set7/'
-train_path = 'train' 
+# image_path = '../../../training_set/set7/'
+# train_path = 'train' 
 
 # test_image_path = '../../../testing/set6/'
 # test_path = 'test'
@@ -194,11 +196,11 @@ sorted_labels = sorted(label_to_id)
 # Create a consistent mapping from label names to label IDs, starting from 1
 label_to_id = {label: i for i, label in enumerate(sorted_labels)}
 
-train_set = ElectoralSymbolTrainDataset(image_path, train_path,label_to_id, get_transform(True))
+# train_set = ElectoralSymbolTrainDataset(image_path, train_path,label_to_id, get_transform(True))
 
-train_loader = DataLoader(train_set, batch_size=4,
-                                         shuffle= True, 
-                                         pin_memory= True if torch.cuda.is_available() else False, collate_fn=collate_fn )
+# train_loader = DataLoader(train_set, batch_size=4,
+#                                          shuffle= True, 
+#                                          pin_memory= True if torch.cuda.is_available() else False, collate_fn=collate_fn )
 
 
 test_set = ElectoralSymbolDataset(test_image_path, image_name, annotations_path, label_to_id, get_transform(True), is_single_image)
@@ -221,90 +223,91 @@ def get_object_detection_model(num_classes):
 num_classes = 44
 model1 = get_object_detection_model(num_classes)
 optimizer = torch.optim.SGD(model1.parameters(),lr=0.001, momentum=0.9, weight_decay=0.0005)
-device = torch.device('cuda') if torch.cuda.is_available() else torch.device('cpu')
+# device = torch.device('cuda') if torch.cuda.is_available() else torch.device('cpu')
+device = torch.device('cpu')
 
 
 
-###--------------------------------------------Testing the model
+# ###--------------------------------------------Testing the model
 
-torch.cuda.empty_cache()
-start_time = time.time()
-model2 = get_object_detection_model(num_classes)
-model2.load_state_dict(torch.load('../../../trained_models/trained_model_fasterrcnn_16_2.pth', map_location= torch.device('cpu')))
-model2.eval()
-predictions = []
-for images, imageids, imagenames, target in test_loader:  # No labels if your test set is unlabeled
-    image = images.to(device)  # Move images to the device where your model is
-    with torch.no_grad():  # No gradients needed
-        output = model2(image)
+# torch.cuda.empty_cache()
 
-        for output, imageid, imagename in zip(output, imageids, imagenames):
-            # Structure each prediction as a tuple
-            prediction = (output, imageid, imagename)
-            predictions.append(prediction) 
+# model2 = get_object_detection_model(num_classes)
+# model2.load_state_dict(torch.load('../../../trained_models/trained_model_fasterrcnn_16_2.pth', map_location= torch.device('cpu')))
+# model2.eval()
+# predictions = []
+# for images, imageids, imagenames, target in test_loader:  # No labels if your test set is unlabeled
+#     image = images.to(device)  # Move images to the device where your model is
+#     with torch.no_grad():  # No gradients needed
+#         output = model2(image)
+
+#         for output, imageid, imagename in zip(output, imageids, imagenames):
+#             # Structure each prediction as a tuple
+#             prediction = (output, imageid, imagename)
+#             predictions.append(prediction) 
 
 
 
 # ----------------------------------------------For Visualizing The Predictions
 
 obj_visualize = VisualizePrediction()
-obj_visualize.visualize_predicted_images(test_set, predictions, label_to_id)
-# obj_visualize.visualize_train_set(test_set[1], label_to_id)
+# obj_visualize.visualize_predicted_images(test_set, predictions, label_to_id)
+print(test_set[0])
+obj_visualize.visualize_train_set(test_set, label_to_id)
 
 
 # #-----------------------------------------------For Vote Validation Visualization
-obj_vote_val = ValidateVote()
-obj_vote_val.predicted_images(test_set, predictions, label_to_id)
+# obj_vote_val = ValidateVote()
+# obj_vote_val.predicted_images(test_set, predictions, label_to_id)
 
 
 #----------------------------------For Bounding Box comparision(Predicted Labels with Ground Truth labels)
-object_compare.labels(test_set, predictions, label_to_id)
-# Specify the path to your Excel file
-file_path = '../../../faster_rcnn_files/df_total_comparisions.xlsx'
-obj_reshape.process_and_reshape_data_v2(file_path)
+# object_compare.labels(test_set, predictions, label_to_id)
+# # Specify the path to your Excel file
+# file_path = '../../../faster_rcnn_files/df_total_comparisions.xlsx'
+# obj_reshape.process_and_reshape_data_v2(file_path)
 
 
-#------------------------------------------------For Metrics Calculation
-dataframe_predicted_data = []
-for data in predictions:  # Loop through each batch
+# #------------------------------------------------For Metrics Calculation
+# dataframe_predicted_data = []
+# for data in predictions:  # Loop through each batch
     
-    prediction_dict = data[0]  
-    imageid = data[1] # The second item is the imageid
-    imagename = data[2] # The third item is the imagename
+#     prediction_dict = data[0]  
+#     imageid = data[1] # The second item is the imageid
+#     imagename = data[2] # The third item is the imagename
     
-    boxes = data[0]['boxes']
-    scores = data[0]['scores']
-    labels = data[0]['labels']
+#     boxes = data[0]['boxes']
+#     scores = data[0]['scores']
+#     labels = data[0]['labels']
 
-    indices = visualize.apply_nms(boxes, scores)   
-    final_boxes, final_scores, final_labels = boxes[indices], scores[indices], labels[indices]
+#     indices = visualize.apply_nms(boxes, scores)   
+#     final_boxes, final_scores, final_labels = boxes[indices], scores[indices], labels[indices]
                                                     
-    #                                                 
-    # If you want to collect these for all images
-    dataframe_predicted_data.append({
-        'imageid': imageid,
-        'imagename': imagename,
-        'boxes': final_boxes,
-        'scores': final_scores,
-        'labels': final_labels
-    })
+#     #                                                 
+#     # If you want to collect these for all images
+#     dataframe_predicted_data.append({
+#         'imageid': imageid,
+#         'imagename': imagename,
+#         'boxes': final_boxes,
+#         'scores': final_scores,
+#         'labels': final_labels
+#     })
 
-metrics_file_path = '../../../faster_rcnn_files/'
-true_labels_path = '../../../testing_set/set5/annotations.csv'
-obj = Metrics()
-obj.metrics(dataframe_predicted_data, true_labels_path, label_to_id, metrics_file_path)
-obj.call_metrics(metrics_file_path)
+# metrics_file_path = '../../../faster_rcnn_files/'
+# true_labels_path = '../../../testing_set/set6/annotations.csv'
+# obj = Metrics()
+# obj.metrics(dataframe_predicted_data, true_labels_path, label_to_id, metrics_file_path)
+# obj.call_metrics(metrics_file_path)
 
       
 
 
 
 
-# end_time = time.time()
-# elapsed_time = end_time - start_time
+end_time = time.time()
+elapsed_time = end_time - start_time
+print(f"Prediction time: {elapsed_time} seconds.")
 
-# print(f"Prediction time: {elapsed_time} seconds.")
-# # visualize.visualize_predicted_images(test_image[0], predicted_data[0])
 
 
 

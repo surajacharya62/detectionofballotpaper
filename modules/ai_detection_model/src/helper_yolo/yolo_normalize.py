@@ -112,6 +112,10 @@ class YoloNormalize():
     #     excel_path = 'pred_labels_objeval_format.xlsx'
     #     df_annotations.to_excel(os.path.join(preds_path, excel_path), index=False)
 
+    def get_image_id(self, filename):
+   
+        return int(filename.split('_')[1].split('.')[0]) - 1
+    
     def pred_labels_conerized_normalized(self, preds_path):    
         
         objeval_notations = []
@@ -127,7 +131,9 @@ class YoloNormalize():
             xmin, ymin, xmax, ymax =  xmin, ymin, xmax, ymax
             objeval_notations.append({
                 'image_name': annotation[1]['image_name'],
+                'image_id': self.get_image_id(annotation[1]['image_name']),
                 'label': annotation[1]['label'],
+                'category_id':annotation[1]['class_id'],
                 'score': annotation[1]['score'],
                 'xmin': xmin,
                 'ymin': ymin,
@@ -175,20 +181,20 @@ class YoloNormalize():
             return [xmin, ymin, xmax, ymax]
             
 
-    def apply_normalization1(self, row):
-        box = ast.literal_eval(row['box_coord'])[0]
-        img_w, img_w = get_image_dimensions(row['image_name'])
-        box = ast.literal_eval(row['box_coord'])[0]
-        xmin = box[0]
-        ymin = box[1]
-        xmax = box[2]
-        ymax = box[3]
-        box = xmin, ymin, xmax, ymax 
+    # def apply_normalization1(self, row):
+    #     box = ast.literal_eval(row['box_coord'])[0]
+    #     img_w, img_w = get_image_dimensions(row['image_name'])
+    #     box = ast.literal_eval(row['box_coord'])[0]
+    #     xmin = box[0]
+    #     ymin = box[1]
+    #     xmax = box[2]
+    #     ymax = box[3]
+    #     box = xmin, ymin, xmax, ymax 
 
-        boxes = self.yolo_to_corners(img_w, img_w, box)
+    #     boxes = self.yolo_to_corners(img_w, img_w, box)
     
-        row['box_coord'] = list(boxes)
-        return row 
+    #     row['box_coord'] = list(boxes)
+    #     return row 
 
 
     def set_corner(self, row):

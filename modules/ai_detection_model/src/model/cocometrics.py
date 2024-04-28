@@ -3,7 +3,7 @@ from pycocotools.cocoeval import COCOeval
 import json
 
 # Load ground truth COCO data
-cocoGt = COCO('true_labels_coco_format.json')
+cocoGt = COCO('coco_true.json')
 
 # Load COCO detections, e.g., your model predictions
 cocoDt = cocoGt.loadRes('coco_pred.json')

@@ -7,6 +7,7 @@ import numpy as np
 import ast
 import os
 import torch
+import random
 
  # To get class labels and sorting it in order  
 df = pd.read_csv(os.path.join('../../../../training_set/set7/', 'annotations.csv'))
@@ -42,7 +43,7 @@ class YoloVisualize():
         ymax = y_center + (h / 2)
         return [xmin, ymin, xmax, ymax]
     
-    def nms(self,bboxes, iou_threshold, threshold=0.5, box_format="midpoint"):
+    def nms(self,bboxes, iou_threshold, threshold=0.4, box_format="corners"):
         """
         Does Non Max Suppression given bboxes
 
@@ -82,7 +83,7 @@ class YoloVisualize():
 
         return bboxes_after_nms
     
-    def intersection_over_union(self,boxes_preds, boxes_labels, box_format="midpoint"):
+    def intersection_over_union(self,boxes_preds, boxes_labels, box_format="corners"):
         """
         Calculates intersection over union
 
@@ -132,13 +133,12 @@ class YoloVisualize():
     
 
     
-    def apply_nms(self,original_boxes, original_scores, iou_threshold=0.5):
+    def apply_nms(self,original_boxes, original_scores, iou_threshold=0.55):
         # Apply NMS and return indices of kept boxes
         # original_scores = original_scores.float()
         keep = torch.ops.torchvision.nms(original_boxes, original_scores, iou_threshold)
         # print(keep)
         return keep
-
 
     
     
@@ -153,6 +153,15 @@ class YoloVisualize():
         normalized_boxes = xmin, ymin, xmax, ymax
         row['box_coord'] = list(normalized_boxes) 
         return row
+
+    def random_color(self):
+    # Generate random RGB components
+        r = random.randint(0, 255)
+        g = random.randint(0, 255)
+        b = random.randint(0, 255)
+        
+        # Convert RGB values to a hex color code
+        return f"#{r:02x}{g:02x}{b:02x}" 
 
     def visualize_test_images(self, image_path, pred_labels_path):          
         
@@ -228,8 +237,11 @@ class YoloVisualize():
                 # print(xmin, ymin, xmax-xmin, ymax-ymin) 
                 
                 # Draw the bounding box
-                rect = patches.Rectangle((xmin, ymin), xmax-xmin, ymax-ymin, linewidth=1, edgecolor='r', facecolor='none')
-                ax.add_patch(rect)
+                
+                
+
+               
+
             
                 labels = {value: key for key, value in label_id.items()}
                 # print(label_id)
@@ -239,7 +251,16 @@ class YoloVisualize():
 
                 class_name = labels.get(pred_label, "unkown")
                 # print(class_name)
-                ax.text(xmin, ymin, class_name, color="red", fontsize=6)
+                if pred_label == 39 or pred_label == 14:
+
+                    rect = patches.Rectangle((xmin, ymin), xmax-xmin, ymax-ymin, linewidth=1, edgecolor='blue', facecolor='none')
+                    ax.text(xmin, ymin, class_name, color="blue", fontsize=8)
+                    ax.add_patch(rect) 
+                else:
+                    rect = patches.Rectangle((xmin, ymin), xmax-xmin, ymax-ymin, linewidth=1, edgecolor='r', facecolor='none')
+                    ax.text(xmin, ymin, class_name, color=self.random_color(), fontsize=random.randint(5, 8))
+                    ax.add_patch(rect) 
+               
 
             plt.axis('off')  # Optional: Remove axes for cleaner visualization
             plt.savefig(f'../../../../output/visualization/yolo/{image_file}1.png', bbox_inches='tight', pad_inches=0, dpi=300)           

@@ -3,6 +3,7 @@ import matplotlib.pyplot as plt
 import matplotlib.patches as patches
 from visualize.visualize_prediction import VisualizePrediction
 import pandas as pd
+from collections import Counter
 import torch
 import ast
 
@@ -66,7 +67,7 @@ class ValidateVote():
                 return True
         return False
     
-    def nms(self,bboxes, iou_threshold, threshold=0.5, box_format="midpoint"):
+    def nms(self,bboxes, iou_threshold, threshold=0.3, box_format="midpoint"):
         """
         Does Non Max Suppression given bboxes
 
@@ -170,9 +171,14 @@ class ValidateVote():
         columns = 6  # Number of symbol columns  
         grid_cells = self.reconstruct_grid_cells(margins, ballot_size, symbol_size, rows, columns)  
         id_to_label = {value: key for key, value in label_to_id.items()}
+       
         valid_stamp_id = 39
         invalid_stamp_id = 14
         symbols_class = []
+
+       
+
+        
 
         for i, (test_data) in enumerate(zip(test_images)):   
             # Convert tensor image to numpy array
@@ -230,8 +236,8 @@ class ValidateVote():
             
             # combined_data = [[labels[i], scores[i]] + boxes[i] for i in range(len(boxes))]
             # print(combined_data)
-            indices = self.nms(combined_data, 0.5)   
-            print(len(indices))
+            indices = self.nms(combined_data, 0.45)   
+            # print(len(indices))
 
             labels = [item[0] for item in indices]
             scores = [item[1] for item in indices]
@@ -245,12 +251,13 @@ class ValidateVote():
             
             for box, score, pred_label in zip(boxes, scores, labels):
                                
-                # if score2 > 0.5:
-                bounding_box = box
-                # print('box1')
-                # print(label)
-                pred_label = label_to_id.get(pred_label,"unkown")
+                bounding_box = box                
+                pred_label = label_to_id.get(pred_label, "unkown")
                 label_id = int(pred_label)
+                label_ids = [label_to_id.get(label, "unknown") for label in labels]
+                counts = Counter(label_ids)
+                numbers_to_check = [14, 39]       
+                total_count = sum(counts[num] for num in numbers_to_check)
 
                 if label_id == valid_stamp_id:    
                     # print("stamp")                    
@@ -286,23 +293,41 @@ class ValidateVote():
                                 break
                             t_box_stamp = [int(coordinate) for coordinate in t_box_stamp]
 
-
-                            filtered_labels_and_bboxes = [(label, bbox) for label, bbox in zip(actual_labels, actual_bboxes) if label == symbol_label]
+                         
+                            filtered_labels_and_bboxes = [(label, bbox) for label, bbox in zip(actual_labels, actual_bboxes) if int(label) == label_idx]
                             # print(filtered_labels_and_bboxes, 'filterboxes')
                             # true_label, true_box = filtered_labels_and_bboxes[0],filtered_labels_and_bboxes[1]
                             bounding_boxes = [bbox for _, bbox in filtered_labels_and_bboxes]
                             # t_box = []
                             # Printing the bounding boxes
+                           
                             for bbox in bounding_boxes:
-                                t_box = bbox
+                                t_box1 = bbox
                                 break
-                            t_box = [int(coordinate) for coordinate in t_box]
+                         
+                            t_box = [int(coordinate) for coordinate in t_box1]
 
                             if self.iou(symbol_box, t_box) > 0.5 and self.iou(bounding_box, t_box_stamp) > 0.5:
                                 
                                
 
+                               
+                                rect = patches.Rectangle((x11, y11), x21-x11, y21-y11, linewidth=1, edgecolor='r', facecolor='none')                
+                                ax.add_patch(rect)
+                                # Add label text
+                                # label_text = f"{class_name}"  # Replace `label` with a mapping to the actual class name if you have one
+                                ax.text(x11, y11, class_name1, color='Red', fontsize=8)  
+                                # print('Symbols')                     
+            
+                                plt.axis('off')  # Optional: Remove axes for cleaner visualization
+                                plt.savefig(f'../../../../output/vote_validation/yolo/valid_{image_name}.jpg', bbox_inches='tight', pad_inches=0,dpi=600)
+                                plt.close()
                                 symbols_class.append((image_name, class_name1, 'valid', 'valid stamp and valid symbol', closet_distance))
+                                print('Symbols: ' + str(id_to_label))
+                                print('Vote: ' + class_name1 + "|" + "valid|" + "valid stamp and valid symbol")
+                            else:
+                                # x11, y11, x21, y21 = symbol_box
+                                
                                 rect = patches.Rectangle((x11, y11), x21-x11, y21-y11, linewidth=1, edgecolor='r', facecolor='none')                
                                 ax.add_patch(rect)
                                 # Add label text
@@ -310,20 +335,11 @@ class ValidateVote():
                                 ax.text(x11, y11, class_name1, color='Red', fontsize=8)                       
             
                                 plt.axis('off')  # Optional: Remove axes for cleaner visualization
-                                plt.savefig(f'../../../../output/vote_validation/yolo/valid_{image_name}.jpg', bbox_inches='tight', pad_inches=0,dpi=600)
-                                # plt.close()
-                            else:
-                                # x11, y11, x21, y21 = symbol_box
+                                plt.savefig(f'../../../../output/vote_validation/yolo/invalid_{image_name}.jpg', bbox_inches='tight', pad_inches=0,dpi=600)  
+                                plt.close()
                                 symbols_class.append((image_name, class_name1, 'invalid', 'invalid symbol or stamp', closet_distance))
-                                rect = patches.Rectangle((x11, y11), x21-x11, y21-y11, linewidth=1, edgecolor='r', facecolor='none')                
-                                ax.add_patch(rect)
-                                # Add label text
-                                # label_text = f"{class_name}"  # Replace `label` with a mapping to the actual class name if you have one
-                                ax.text(x11, y11, class_name, color='Red', fontsize=8)                       
-            
-                                plt.axis('off')  # Optional: Remove axes for cleaner visualization
-                                plt.savefig(f'../../../../output/vote_validation/yolo/invalid_{image_name}.jpg', bbox_inches='tight', pad_inches=0,dpi=600)
-                      
+                                print('Symbols: ' + str(id_to_label))
+                                print('Vote: ' + class_name1 + "|" + "invalid|" + "invalid symbol or stamp")                   
 
 
                         else:
@@ -337,13 +353,13 @@ class ValidateVote():
                             ax.add_patch(rect)
                             # Add label text
                             # label_text = f"{class_name}"  # Replace `label` with a mapping to the actual class name if you have one
-                            ax.text(x1, y1, class_name, color='Red', fontsize=8)  
-
-                            symbols_class.append((image_name, class_name, 'invalid', 'valid vote and invalid symbol',closet_distance))
+                            ax.text(x1, y1, class_name, color='Red', fontsize=8)
                             plt.axis('off')  # Optional: Remove axes for cleaner visualization
                             plt.savefig(f'../../../../output/vote_validation/yolo/invalid_{image_name}.jpg', bbox_inches='tight', pad_inches=0,dpi=600)
-                            # plt.close()
-
+                            plt.close()
+                            symbols_class.append((image_name, class_name, 'invalid', 'valid vote and invalid symbol',closet_distance))
+                            print('Symbols: ' + str(id_to_label))
+                            print('Vote: ' + class_name + "|" + "invalid|" + "valid vote and invalid symbol")  
                     else:
                         # print(bounding_box, image_name, grid_cells)
                         x1, y1, x2, y2 = bounding_box
@@ -356,10 +372,13 @@ class ValidateVote():
                         class_name = id_to_label.get(label_id, 'Unknown')  # Replace `label` with a mapping to the actual class name if you have one
                         ax.text(x1, y1, class_name, color='blue', fontsize=12)
                         
-                        symbols_class.append((image_name, class_name, 'invalid', 'stamp not inside cell1','Nan'))
+                       
                         plt.axis('off')  # Optional: Remove axes for cleaner visualization
                         plt.savefig(f'../../../output/vote_validation/yolo/valid_{image_name}.jpg', bbox_inches='tight', pad_inches=0,dpi=600)
                         plt.close()
+                        symbols_class.append((image_name, class_name, 'invalid', 'stamp not inside cell1','Nan'))
+                        print('Symbols: ' + str(id_to_label))
+                        print('Vote: ' + class_name + "|" + "invalid|" + "stamp not inside cell")  
 
                 elif label_id == invalid_stamp_id:
                     # print(self.is_stamp_valid(bounding_box, grid_cells), 'gridcell', image_name, bounding_box, grid_cells)
@@ -376,10 +395,13 @@ class ValidateVote():
                         # label_id = int(pred_label)
                         class_name = id_to_label.get(label_id, 'Unknown')  # Replace `label` with a mapping to the actual class name if you have one
                         ax.text(x1, y1, class_name, color='blue', fontsize=12)
-                        symbols_class.append((image_name, class_name, 'invalid', 'invalid stamp','nan'))
+                        
                         plt.axis('off')  # Optional: Remove axes for cleaner visualization
                         plt.savefig(f'../../../../output/vote_validation/yolo/invalid_{image_name}.jpg', bbox_inches='tight', pad_inches=0,dpi=600)
-                        # plt.close()
+                        plt.close()
+                        symbols_class.append((image_name, class_name, 'invalid', 'invalid stamp','nan'))
+                        print('Symbols: ' + str(id_to_label))
+                        print('Vote: ' + class_name + "|" + "invalid|" + "invalid stamp")  
                     
                         # is_valid_symbol, symbol_label, symbol_box, closet_distance = self.is_stamp_for_symbol(bounding_box, zip(boxes, labels, scores), image_name)
                         
@@ -452,12 +474,46 @@ class ValidateVote():
                         # pred_label = label_to_id.get(pred_label,"unkown")
                         # label_id = int(pred_label)
                         class_name = id_to_label.get(label_id, 'Unknown')  # Replace `label` with a mapping to the actual class name if you have one
-                        ax.text(x1, y1, class_name, color='blue', fontsize=12)
+                        ax.text(x1, y1, class_name, color='blue', fontsize=12)                       
                         
-                        symbols_class.append((image_name, pred_label, 'Invalid', 'Stamp not inside cell2','nan'))
                         plt.axis('off')  # Optional: Remove axes for cleaner visualization2
                         plt.savefig(f'../../../../output/vote_validation/yolo/invalid_{image_name}.jpg', bbox_inches='tight', pad_inches=0,dpi=600)
                         plt.close()
+                        symbols_class.append((image_name, pred_label, 'invalid', 'Stamp not inside cell2','nan'))
+                        print('Symbols: ' + str(id_to_label))
+                        print('Vote: ' + class_name + "|" + "invalid|" + "stamp not inside cell")  
+
+                elif all(x not in label_ids for x in [14, 39]):
+                   
+                    ax.axis('off')  # Optional: Remove axes for cleaner visualization2
+                    plt.savefig(f'../../../../output/vote_validation/yolo/no_stamp_{image_name}.jpg', bbox_inches='tight', pad_inches=0,dpi=600)
+                    plt.close()
+                    symbols_class.append((image_name, 'stamp not detected', 'invalid', 'no stamp','nan'))
+                    print('Symbols: ' + str(id_to_label))
+                    print('Vote: ' + 'stamp not detected' + "|" + "invalid|" + "no stamp")  
+                    break
+
+                elif all(x in label_ids for x in [14, 39]):
+                   
+                    ax.axis('off')  # Optional: Remove axes for cleaner visualization2
+                    plt.savefig(f'../../../../output/vote_validation/yolo/multi_stamp_{image_name}.jpg', bbox_inches='tight', pad_inches=0,dpi=600)
+                    plt.close()
+                    symbols_class.append((image_name, 'multiple stamp detected', 'invalid', 'multi stamp','nan'))
+                    print('Symbols: ' + str(id_to_label))
+                    print('Vote: ' + 'multiple stamp detected' + "|" + "invalid|" + "mulit stamp")  
+                    break
+                
+                elif total_count > 2:
+                    ax.axis('off')  # Optional: Remove axes for cleaner visualization2
+                    plt.savefig(f'../../../../output/vote_validation/yolo/multi_stamp_{image_name}.jpg', bbox_inches='tight', pad_inches=0,dpi=600)
+                    plt.close()
+                    symbols_class.append((image_name, 'multiple stamp detected', 'invalid', 'multi stamp','nan'))
+                    print('Symbols: ' + str(id_to_label))
+                    print('Vote: ' + 'multiple stamp detected' + "|" + "invalid|" + "mulit stamp")  
+                    break
+
+
+                    
 
         #   Symbols: 1-Tree 2-Sun …. and Vote - Tree|Invalid|No stamp.                    
         df = pd.DataFrame(symbols_class, columns=['Image Id','Vote Symbol','Valid','Remarks','closet_distance'])
@@ -559,7 +615,7 @@ class ValidateVote():
             if symbol_label not in ['invalid_stamp' , 'valid_stamp']:          
                
                 if self.iou(stamp_box, symbol_box) > 0.0:  # There is an overlap
-                    print(self.iou(stamp_box, symbol_box), symbol_box, stamp_box, image_name, symbol_label)
+                    # print(self.iou(stamp_box, symbol_box), symbol_box, stamp_box, image_name, symbol_label)
                     return True, symbol_label, symbol_box, closest_distance
                 else:  # Check for proximity
                     dist = ((self.center(symbol_box)[0] - self.center(stamp_box)[0]) ** 2 + 
@@ -576,10 +632,10 @@ class ValidateVote():
         adjusted_proximity_threshold = 378 - 189  # Example adjustment
         
         if closest_distance <= adjusted_proximity_threshold:
-            print("True",closest_distance, image_name)
+            # print("True",closest_distance, image_name)
             return True, closest_symbol_label, closest_symbol_box, closest_distance
         else:
-            print("False",closest_distance, image_name)
+            # print("False",closest_distance, image_name)
             
             return False, closest_symbol_label, closest_symbol_box, closest_distance
 

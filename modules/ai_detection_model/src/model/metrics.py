@@ -6,6 +6,10 @@ import matplotlib.pyplot as plt
 import os
 
 class Metrics():
+
+    def get_image_id(self, filename):
+   
+        return int(filename.split('_')[1].split('.')[0]) - 1
     
     def metrics(self, prediction_labels, true_labels_path, label_to_id, files_path):
         pred_label = []
@@ -22,7 +26,7 @@ class Metrics():
             for box, label, score in zip(boxes, labels, scores):
                 xmin, ymin, xmax, ymax = box  # Unpack each box's coordinates
                 pred_label.append({
-                    'id': id,
+                    'image_id': id.item(),
                     'xmin': xmin,
                     'ymin': ymin,
                     'xmax': xmax,
@@ -36,12 +40,16 @@ class Metrics():
         preds_df = pd.DataFrame(pred_label)
         preds_df['category_id'] = preds_df['label']
         preds_df['label'] = preds_df['label'].replace(inv_label)  
+        
+        
         preds_df.to_excel(os.path.join(files_path, 'preds_df.xlsx'))
 
 
         true_labels_df = pd.DataFrame(true_labels)
         
         true_labels_df['category_id'] = true_labels_df['label'].replace(label_to_id) 
+        true_labels_df['image_id'] = true_labels_df['image_name'].apply(self.get_image_id)
+
         true_labels_df.to_excel(os.path.join(files_path, 'true_labels_df.xlsx'))        
         
         pred = pd.read_excel(os.path.join(files_path, 'preds_df.xlsx'))
@@ -135,8 +143,8 @@ class Metrics():
             # plt.legend()
 
             plt.plot(recalls, precisions, marker='.',color='pink', markerfacecolor='blue', label=f'{class_name}')
-            plt.xlabel('Recall', fontsize=6)  # Adjust font size here
-            plt.ylabel('Precision', fontsize=6)  # Adjust font size here
+            plt.xlabel('Recall', fontsize=8)  # Adjust font size here
+            plt.ylabel('Precision', fontsize=8)  # Adjust font size here
             # plt.title(f'Class: {class_name}', fontsize=8)  # Adjust font size here
             plt.legend(prop={'size': 5})  # Adjust legend font size here
             plt.tick_params(axis='both', which='major', labelsize=5) 
@@ -177,9 +185,10 @@ class Metrics():
         recall_micro = total_TP / (total_TP + total_FN) if (total_TP + total_FN) > 0 else 0
         f1_micro = 2 * (precision_micro * recall_micro) / (precision_micro + recall_micro) if (precision_micro + recall_micro) > 0 else 0
 
+        print(f"Micro F1 Score: {f1_micro}")
         print(f"Micro-average Precision: {precision_micro}")
         print(f"Micro-average Recall: {recall_micro}")
-        print(f"Micro F1 Score: {f1_micro}")
+       
 
 
 # import ast

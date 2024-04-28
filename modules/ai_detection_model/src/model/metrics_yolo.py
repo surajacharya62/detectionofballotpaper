@@ -116,7 +116,7 @@ class YoloMetrics():
         df_summary['F1'] = 2 * (df_summary['Precision'] * df_summary['Recall']) / (df_summary['Precision'] + df_summary['Recall'])
 
         macro_f1_score = df_summary['F1'].mean()
-        print("Macro F1 Score:", macro_f1_score)
+        
 
 
         # #-------------------------------Calculating micro F1 Score
@@ -128,6 +128,8 @@ class YoloMetrics():
         recall_micro = total_TP / (total_TP + total_FN) if (total_TP + total_FN) > 0 else 0
         f1_micro = 2 * (precision_micro * recall_micro) / (precision_micro + recall_micro) if (precision_micro + recall_micro) > 0 else 0
 
+        print("Macro F1 Score:", macro_f1_score)
+        print(f"Micro F1 Score: {f1_micro}")
         print(f"Micro-average Precision: {precision_micro}")
         print(f"Micro-average Recall: {recall_micro}")
-        print(f"Micro F1 Score: {f1_micro}")
+        

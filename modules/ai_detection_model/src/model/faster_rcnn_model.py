@@ -20,7 +20,7 @@ from torch.cuda.amp import GradScaler, autocast
 from visualize.visualize_prediction import VisualizePrediction
 from vote_validation.validate_vote import ValidateVote
 # from model.metrics import Metrics
-from model.test import CompareBoundingBox
+from model.compare_bounding_boxes_faster import CompareBoundingBox
 
 
 
